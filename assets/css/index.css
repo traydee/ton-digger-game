@@ -140,12 +140,20 @@ header .scores .score.serum-score {
 header .scores .score.second-score {
   background: #c25fff;
 }
+
+header .scores .score.life-score {
+  background: #ED97A6;
+}
+
 header .scores .score img {
   position: absolute;
   top: 50%;
   left: -10px;
   transform: translateY(-50%);
   width: 30px;
+}
+header .scores .score.life-score img {
+  transform: translateY(-50%) scale(1.3);
 }
 @media only screen and (max-width: 1024px) {
   header .scores .score img {
@@ -176,6 +184,10 @@ header .scores .score.serum-score p {
 header .scores .score.second-score p {
   background: #8b3aca;
   text-shadow: 1px 0px 0 #03265b, 0.9239px 0.3827px 0 #03265b, 0.7071px 0.7071px 0 #03265b, 0.3827px 0.9239px 0 #03265b, 0px 1px 0 #03265b, -0.3827px 0.9239px 0 #03265b, -0.7071px 0.7071px 0 #03265b, -0.9239px 0.3827px 0 #03265b, -1px 0px 0 #03265b, -0.9239px -0.3827px 0 #03265b, -0.7071px -0.7071px 0 #03265b, -0.3827px -0.9239px 0 #03265b, 0px -1px 0 #03265b, 0.3827px -0.9239px 0 #03265b, 0.7071px -0.7071px 0 #03265b, 0.9239px -0.3827px 0 #03265b;
+}
+header .scores .score.life-score p {
+  background: #E5416E;
+  text-shadow: 1px 0px 0 #052360, 0.9239px 0.3827px 0 #052360, 0.7071px 0.7071px 0 #052360, 0.3827px 0.9239px 0 #052360, 0px 1px 0 #052360, -0.3827px 0.9239px 0 #052360, -0.7071px 0.7071px 0 #052360, -0.9239px 0.3827px 0 #052360, -1px 0px 0 #052360, -0.9239px -0.3827px 0 #052360, -0.7071px -0.7071px 0 #052360, -0.3827px -0.9239px 0 #052360, 0px -1px 0 #052360, 0.3827px -0.9239px 0 #052360, 0.7071px -0.7071px 0 #052360, 0.9239px -0.3827px 0 #052360;
 }
 
 .start-screen {
@@ -241,6 +253,7 @@ header .scores .score.second-score p {
   font-weight: normal;
   background: -webkit-linear-gradient(#7d417b, #c385f9);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 @media only screen and (max-width: 768px) {

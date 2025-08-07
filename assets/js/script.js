@@ -45,6 +45,7 @@ const infoScreenCloseBtn = document.querySelector(
 const leaderboardScreenElem = document.querySelector("[data-leaderboard-screen]");
 const leaderboardCloseBtn = document.querySelector("[data-leaderboard-close-btn]");
 const leaderboardList = document.querySelector("[data-leaderboard-list]");
+const lifeScoreElem = document.querySelector('[data-life-score]');
 
 // Initially set pisel to world scale
 setPixelToWorldScale();
@@ -444,13 +445,17 @@ const handleLose = () => {
 
   // Получаем Telegram ID (если WebApp)
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const telegramId = telegramUser?.id;
+  // const telegramId = telegramUser?.id;
+  const telegramId = 5744864118;
 
   // Отправляем результаты, если есть telegram_id
   if (telegramId) {
-    sendGameSession(telegramId, secondsScore);
+    // после записи сессии обновим жизни
+    sendGameSession(telegramId, secondsScore)
+      .finally(() => fetchLivesAndRender());
   } else {
     console.warn("Telegram WebApp не доступен или пользователь не найден");
+    fetchLivesAndRender();
   }
 
   setTimeout(() => {
@@ -516,8 +521,12 @@ if (deviceWidth.matches) {
   setBodyHeight();
 }
 
+function getInitData() {
+  return window.Telegram?.WebApp?.initData || "5744864118";
+}
+
 function sendGameSession(telegramId, secondsScore) {
-  fetch("http://212.67.10.158:1234/api/game_session/", {
+  return fetch("http://212.67.10.158:1234/api/game_session/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -534,12 +543,36 @@ function sendGameSession(telegramId, secondsScore) {
       return response.json();
     })
     .then((data) => {
-      console.log("✅ Сессия успешно сохранена:", data);
+      console.log("Сессия успешно сохранена:", data);
     })
     .catch((error) => {
-      console.error("❌ Ошибка при отправке сессии:", error);
+      console.error("Ошибка при отправке сессии:", error);
     });
 }
+
+async function fetchLivesAndRender() {
+  const init_data = getInitData();
+
+  try {
+    const res = await fetch("http://212.67.10.158:1234/api/get_lives/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ init_data }) // как «у проверки подписки»
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Ожидаем { lives: number }
+    const lives = Number(data?.lives ?? 0);
+    lifeScoreElem.textContent = lives;
+  } catch (err) {
+    console.error("Не удалось получить жизни:", err);
+    lifeScoreElem.textContent = "0"; // или "—"
+  }
+}
+
+document.addEventListener("DOMContentLoaded", fetchLivesAndRender);
 
 // Detect tab change
 $(window).blur(function () {
