@@ -445,8 +445,8 @@ const handleLose = () => {
 
   // Получаем Telegram ID (если WebApp)
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const telegramId = telegramUser?.id;
-  // const telegramId = 5744864118;
+  // const telegramId = telegramUser?.id;
+  const telegramId = 5744864118;
 
   // Отправляем результаты, если есть telegram_id
   if (telegramId) {
@@ -522,7 +522,7 @@ if (deviceWidth.matches) {
 }
 
 function getInitData() {
-  return window.Telegram?.WebApp?.initData || "";
+  return window.Telegram?.WebApp?.initData || "user=%7B%22id%22%3A5744864118%2C%22first_name%22%3A%22%D0%90%D1%80%D1%82%D1%83%D1%80%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22tray_dee%22%2C%22language_code%22%3A%22ru%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FeaO3hPMNeBR3eS_55IWGG65x0v0g5jbMB0UEGDpdoZ5Inupd7SbxkLLZbyIxr98y.svg%22%7D&chat_instance=-7868909803339777740&auth_date=1754670461&signature=9meYViX7-MogPQ8kOEupLBDQKIwSLEU-PoD9dzPnHSriXc38Obfyd_JmzFuQiUbED5v4InvUK_d-48TQ5QMuAA&hash=f3e4c7c23d9f0ad216a5ee1fecf29790c46049a8c0e0a6ee4bd79263e7cefe7e";
 }
 
 function sendGameSession(telegramId, secondsScore) {

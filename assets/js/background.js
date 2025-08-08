@@ -6,7 +6,7 @@ import {
 } from "./updateCustomProperty.js";
 
 // Global variables
-const SPEED = window.innerWidth > 768 ? 0.005 : 0.0075;
+const SPEED = window.innerWidth > 768 ? 0.005 : 0.03;
 
 // Elements
 const backgroundElems = document.querySelectorAll("[data-background]");
