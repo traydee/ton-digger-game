@@ -17,6 +17,7 @@ import { setupCoin, updateCoin, getCoinRects } from "./coin.js";
 import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 
 // Global variables
+const API_BASE_URL = "http://212.67.10.158:1234";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
@@ -153,7 +154,7 @@ trophyBtn.addEventListener("click", async () => {
   leaderboardList.innerHTML = "<li>Загрузка...</li>";
 
   try {
-    const response = await fetch("http://212.67.10.158:1234/api/leaderboard/");
+    const response = await fetch(`${API_BASE_URL}/api/leaderboard/`);
     if (!response.ok) throw new Error("Ошибка: " + response.status);
 
     const data = await response.json();
@@ -526,7 +527,7 @@ function getInitData() {
 }
 
 function sendGameSession(telegramId, secondsScore) {
-  return fetch("http://212.67.10.158:1234/api/game_session/", {
+  return fetch(`${API_BASE_URL}/api/game_session/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -554,7 +555,7 @@ async function fetchLivesAndRender() {
   const init_data = getInitData();
 
   try {
-    const res = await fetch("http://212.67.10.158:1234/api/get_lives/", {
+    const res = await fetch(`${API_BASE_URL}/api/get_lives/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ init_data }) // как «у проверки подписки»

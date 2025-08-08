@@ -17,15 +17,6 @@ const backgroundElems = document.querySelector("[data-background-elements]");
 let nextBackgroundElementTime;
 const backgroundElements = ["bat"];
 
-// Setup background element
-const setupBackgroundElement = () => {
-  nextBackgroundElementTime = BACKGROUND_ELEMENT_INTERVAL_MIN;
-
-  document
-    .querySelectorAll("[data-background-element]")
-    .forEach((backgroundElement) => backgroundElement.remove());
-};
-
 // Update background element
 const updateBackgroundElement = (delta, speedScale) => {
   document
@@ -55,6 +46,19 @@ const updateBackgroundElement = (delta, speedScale) => {
   nextBackgroundElementTime -= delta;
 };
 
+let isFirstBackgroundElement = true; // флаг первого спавна
+
+// Setup background element
+const setupBackgroundElement = () => {
+  isFirstBackgroundElement = true; // сбрасываем при новой игре
+
+  nextBackgroundElementTime = BACKGROUND_ELEMENT_INTERVAL_MIN;
+
+  document
+    .querySelectorAll("[data-background-element]")
+    .forEach((backgroundElement) => backgroundElement.remove());
+};
+
 // Create background element
 const createBackgroundElement = () => {
   const backgroundElement = document.createElement("img");
@@ -63,13 +67,23 @@ const createBackgroundElement = () => {
     backgroundElements[Math.floor(Math.random() * backgroundElements.length)];
 
   backgroundElement.dataset.backgroundElement = true;
+  backgroundElement.dataset.obstacle = true;
+  backgroundElement.classList.add("obstacle");
+
   backgroundElement.src = `./assets/images/${randomBackgroundElement}.gif`;
   backgroundElement.classList.add("background-element");
   backgroundElement.classList.add(randomBackgroundElement);
 
   setCustomProperty(backgroundElement, "--left", 100);
 
-  const randomTop = randomNumberBetween(20, 23); // высота полета члена
+  let randomTop;
+  if (isFirstBackgroundElement) {
+    randomTop = 40; // первый элемент в новой игре
+    isFirstBackgroundElement = false; // после него уже обычные
+  } else {
+    randomTop = randomNumberBetween(50, 55); // остальные
+  }
+
   setCustomProperty(backgroundElement, "--top", randomTop);
 
   backgroundElems.append(backgroundElement);
