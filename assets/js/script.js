@@ -17,7 +17,7 @@ import { setupCoin, updateCoin, getCoinRects } from "./coin.js";
 import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 
 // Global variables
-const API_BASE_URL = "http://212.67.10.158:1234";
+const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
@@ -446,8 +446,8 @@ const handleLose = () => {
 
   // Получаем Telegram ID (если WebApp)
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  // const telegramId = telegramUser?.id;
-  const telegramId = 5744864118;
+  const telegramId = telegramUser?.id;
+  // const telegramId = 5744864118;
 
   // Отправляем результаты, если есть telegram_id
   if (telegramId) {
