@@ -78,7 +78,7 @@ const createBackgroundElement = () => {
 
   let randomTop;
   if (isFirstBackgroundElement) {
-    randomTop = 40; // первый элемент в новой игре
+    randomTop = 25; // первый элемент в новой игре
     isFirstBackgroundElement = false; // после него уже обычные
   } else {
     randomTop = randomNumberBetween(50, 55); // остальные
