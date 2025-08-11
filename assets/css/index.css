@@ -363,7 +363,7 @@ header .scores .score.life-score p {
 }
 .lose-screen .box .box-footer .restart-btn span {
   position: absolute;
-  top: 30%;
+  top: 25%;
   left: 50%;
   transform: translateX(-50%);
   font-family: "Annyant Roman", sans-serif;
@@ -637,7 +637,7 @@ header .scores .score.life-score p {
 }
 
 #fetchLivesTitle {
-  font-size: 17px;
+  font-size: 16px;
   white-space: nowrap; /* запрет переноса */
   text-align: center; /* на всякий случай */
 }
