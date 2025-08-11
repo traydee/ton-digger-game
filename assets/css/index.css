@@ -636,6 +636,14 @@ header .scores .score.life-score p {
   height: 56px;
 }
 
+#fetchLivesTitle {
+  white-space: nowrap; /* запрет переноса */
+  text-align: center; /* на всякий случай */
+}
+
+.fetchLives-screen .box .info-part p {
+  text-align: center; /* выравнивание текста по центру */
+}
 
 .floating-btns {
   position: absolute;
