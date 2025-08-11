@@ -637,6 +637,7 @@ header .scores .score.life-score p {
 }
 
 #fetchLivesTitle {
+  font-size: 17px;
   white-space: nowrap; /* запрет переноса */
   text-align: center; /* на всякий случай */
 }
