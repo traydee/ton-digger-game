@@ -481,8 +481,8 @@ const handleLose = () => {
 
   // Получаем Telegram ID (если WebApp)
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  // const telegramId = telegramUser?.id;
-  const telegramId = 5744864118;
+  const telegramId = telegramUser?.id;
+  // const telegramId = 5744864118;
 
   // Отправляем результаты, если есть telegram_id
   if (telegramId) {
@@ -646,6 +646,21 @@ function hideNoLivesModal() {
 }
 
 document.addEventListener("DOMContentLoaded", fetchLivesAndRender);
+
+document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
+  btn.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    if (!tgUser || !tgUser.id) return;
+
+    const link = `https://t.me/rollcam_bot?start=${tgUser.id}`;
+    const comment = `Привет! Заходи в колесо-вебкама и получай бесплатное продвижение на Stripchat и Chaturbate, бесплатные лайки Chaturbate и курс от ТОП модели!`;
+
+    const shareLink = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(comment)}`;
+    window.Telegram.WebApp.openTelegramLink(shareLink);
+  });
+});
 
 // Detect tab change
 $(window).blur(function () {
