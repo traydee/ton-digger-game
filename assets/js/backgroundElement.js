@@ -67,8 +67,8 @@ const createBackgroundElement = () => {
     backgroundElements[Math.floor(Math.random() * backgroundElements.length)];
 
   backgroundElement.dataset.backgroundElement = true;
-  backgroundElement.dataset.obstacle = true;
-  backgroundElement.classList.add("obstacle");
+  // backgroundElement.dataset.obstacle = true;
+  // backgroundElement.classList.add("obstacle");
 
   backgroundElement.src = `./assets/images/${randomBackgroundElement}.gif`;
   backgroundElement.classList.add("background-element");
@@ -81,7 +81,7 @@ const createBackgroundElement = () => {
     randomTop = 25; // первый элемент в новой игре
     isFirstBackgroundElement = false; // после него уже обычные
   } else {
-    randomTop = randomNumberBetween(50, 55); // остальные
+    randomTop = randomNumberBetween(25, 30); // остальные
   }
 
   setCustomProperty(backgroundElement, "--top", randomTop);

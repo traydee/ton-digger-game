@@ -39,6 +39,7 @@ const shareBtn = document.querySelector("[data-share-btn]");
 const serumBtn = document.querySelector("[data-serum-btn]");
 const soundBtn = document.querySelector("[data-sound-btn]");
 const trophyBtn = document.querySelector("[data-trophy-btn]");
+const trophyBtnBoard = document.querySelector("[data-trophy-btn-board]");
 const infoBtn = document.querySelector("[data-info-btn]");
 const infoScreenCloseBtn = document.querySelector(
   "[data-info-screen-close-btn]"
@@ -82,15 +83,27 @@ document.querySelectorAll("button").forEach((button) => {
   });
 });
 
-startBtn.addEventListener("click", () => {
-  if (!gameStarted) {
-    // Make game started true
-    gameStarted = true;
+// Соглашение 18+
+const checkbox = document.getElementById("agree18");
+// Следим за изменением состояния галочки
+checkbox.addEventListener("change", () => {
+  startBtn.disabled = !checkbox.checked;
+});
 
-    // Handle start
+startBtn.addEventListener("click", () => {
+  const checkbox = document.getElementById("agree18");
+
+  // Если галочки нет — сразу выходим
+  if (!checkbox.checked) {
+    return;
+  }
+
+  if (!gameStarted) {
+    gameStarted = true;
     handleStart();
   }
 });
+
 
 restartBtn.addEventListener("click", () => {
   if (!gameStarted) {
@@ -149,46 +162,45 @@ soundBtn.addEventListener("click", () => {
   }
 });
 
-trophyBtn.addEventListener("click", async () => {
+
+function openLeaderboard() {
   leaderboardScreenElem.classList.remove("hide");
   leaderboardList.innerHTML = "<li>Загрузка...</li>";
 
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/leaderboard/`);
-    if (!response.ok) throw new Error("Ошибка: " + response.status);
-
-    const data = await response.json();
-
-    leaderboardList.innerHTML = "";
-
-    if (!data || data.length === 0) {
+  fetch(`${API_BASE_URL}/api/leaderboard/`)
+    .then(response => {
+      if (!response.ok) throw new Error("Ошибка: " + response.status);
+      return response.json();
+    })
+    .then(data => {
+      leaderboardList.innerHTML = "";
+      if (!data || data.length === 0) {
+        leaderboardList.innerHTML = `
+          <li>Пока никого нет</li>
+          <li style="color: #b44;">⚠️ Сервер вернул пустой список</li>
+        `;
+        return;
+      }
+      data.forEach((entry, index) => {
+        const li = document.createElement("li");
+        li.textContent = `${index + 1}. ${entry.first_name} (${entry.username}) — ${entry.max_seconds}s`;
+        li.style.color = "#fff";
+        leaderboardList.appendChild(li);
+      });
+    })
+    .catch(error => {
       leaderboardList.innerHTML = `
         <li>Пока никого нет</li>
-        <li style="color: #b44;">⚠️ Сервер вернул пустой список</li>
+        <li style="color: #b44;">⚠️ Сервер недоступен</li>
       `;
-      return;
-    }
-
-    data.forEach((entry, index) => {
-      const li = document.createElement("li");
-      li.textContent = `${index + 1}. ${entry.first_name} (${entry.username}) — ${entry.max_seconds}s`;
-      li.style.color = "#fff";
-      leaderboardList.appendChild(li);
+      console.error("Ошибка запроса /api/leaderboard/:", error);
     });
-  } catch (error) {
-    leaderboardList.innerHTML = `
-      <li>Пока никого нет</li>
-      <li style="color: #b44;">⚠️ Сервер недоступен</li>
-    `;
-    console.error("Ошибка запроса /api/leaderboard/:", error);
-  }
-});
+}
 
-leaderboardCloseBtn.addEventListener("click", () => {
-  leaderboardScreenElem.classList.add("hide");
-});
+// навешиваем обработчики на обе кнопки
+trophyBtn?.addEventListener("click", openLeaderboard);
+trophyBtnBoard?.addEventListener("click", openLeaderboard);
 
-// Закрытие по кнопке "✖"
 leaderboardCloseBtn.addEventListener("click", () => {
   leaderboardScreenElem.classList.add("hide");
 });
