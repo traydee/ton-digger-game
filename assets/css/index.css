@@ -812,7 +812,14 @@ header .scores .score.life-score p {
   accent-color: #c385f9;
   cursor: pointer;
 }
+.agreement label{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;   /* не переносить */
+}
 
+.agreement { max-width: none; } /* если ограничение ширины ломает строку */
 
 .score.gem-score {
   display: none;
