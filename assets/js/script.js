@@ -481,8 +481,8 @@ const handleLose = () => {
 
   // Получаем Telegram ID (если WebApp)
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  // const telegramId = telegramUser?.id;
-  const telegramId = 5744864118;
+  const telegramId = telegramUser?.id;
+  // const telegramId = 5744864118;
 
   // Отправляем результаты, если есть telegram_id
   if (telegramId) {
