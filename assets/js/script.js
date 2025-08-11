@@ -48,6 +48,9 @@ const leaderboardScreenElem = document.querySelector("[data-leaderboard-screen]"
 const leaderboardCloseBtn = document.querySelector("[data-leaderboard-close-btn]");
 const leaderboardList = document.querySelector("[data-leaderboard-list]");
 const lifeScoreElem = document.querySelector('[data-life-score]');
+const fetchLivesScreen = document.querySelector('[data-fetchLives-screen]');
+const fetchLivesCloseBtn = document.querySelector('[data-fetchLives-close-btn]');
+const fetchLivesContent = document.querySelector('[data-fetchLives-content]');
 
 // Initially set pisel to world scale
 setPixelToWorldScale();
@@ -90,11 +93,16 @@ checkbox.addEventListener("change", () => {
   startBtn.disabled = !checkbox.checked;
 });
 
-startBtn.addEventListener("click", () => {
+startBtn.addEventListener("click", async () => {
   const checkbox = document.getElementById("agree18");
 
-  // Если галочки нет — сразу выходим
-  if (!checkbox.checked) {
+  if (!checkbox.checked) return;
+
+  startBtn.disabled = true;
+  const lives = await fetchLivesAndRender();
+
+  if (!Number.isFinite(lives) || lives <= 0) {
+    startBtn.disabled = false; // остаёмся на старте
     return;
   }
 
@@ -102,17 +110,28 @@ startBtn.addEventListener("click", () => {
     gameStarted = true;
     handleStart();
   }
+  startBtn.disabled = false;
 });
 
 
-restartBtn.addEventListener("click", () => {
-  if (!gameStarted) {
-    // Make game started true
-    gameStarted = true;
+restartBtn.addEventListener("click", async () => {
+  if (gameStarted) return;
 
-    // Handle start
-    handleStart();
+  const checkbox = document.getElementById("agree18");
+  if (checkbox && !checkbox.checked) return;
+
+  restartBtn.disabled = true;
+
+  const lives = await fetchLivesAndRender();
+  if (!Number.isFinite(lives) || lives <= 0) {
+    restartBtn.disabled = false; // остаёмся на экране проигрыша
+    return;
   }
+
+  gameStarted = true;
+  handleStart();
+
+  restartBtn.disabled = false;
 });
 
 shareBtn.addEventListener("click", () => {
@@ -203,6 +222,10 @@ trophyBtnBoard?.addEventListener("click", openLeaderboard);
 
 leaderboardCloseBtn.addEventListener("click", () => {
   leaderboardScreenElem.classList.add("hide");
+});
+
+fetchLivesCloseBtn.addEventListener("click", () => {
+  hideNoLivesModal();
 });
 
 infoBtn.addEventListener("click", () => {
@@ -458,8 +481,8 @@ const handleLose = () => {
 
   // Получаем Telegram ID (если WebApp)
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const telegramId = telegramUser?.id;
-  // const telegramId = 5744864118;
+  // const telegramId = telegramUser?.id;
+  const telegramId = 5744864118;
 
   // Отправляем результаты, если есть telegram_id
   if (telegramId) {
@@ -579,9 +602,46 @@ async function fetchLivesAndRender() {
     // Ожидаем { lives: number }
     const lives = Number(data?.lives ?? 0);
     lifeScoreElem.textContent = lives;
+
+    if (!Number.isFinite(lives) || lives <= 0) {
+      showNoLivesModal();
+    } else {
+      hideNoLivesModal();
+    }
+
+    return lives;
   } catch (err) {
     console.error("Не удалось получить жизни:", err);
     lifeScoreElem.textContent = "0"; // или "—"
+    showNoLivesModal();
+    return 0;
+  }
+}
+
+function showNoLivesModal() {
+  if (!fetchLivesScreen) return;
+
+  if (fetchLivesContent) fetchLivesContent.innerHTML = html;
+
+  fetchLivesScreen.classList.remove('hide');
+  document.body.style.overflow = 'hidden';
+  if (typeof startBtn !== 'undefined' && startBtn) startBtn.disabled = true;
+
+  // повесь свою логику:
+  const inviteBtn = document.getElementById('fetchLivesInvite');
+  const tasksBtn  = document.getElementById('fetchLivesTasks');
+  if (inviteBtn) inviteBtn.onclick = () => { /* TODO */ };
+  if (tasksBtn)  tasksBtn.onclick  = () => { /* TODO */ };
+}
+
+function hideNoLivesModal() {
+  if (!fetchLivesScreen) return;
+  fetchLivesScreen.classList.add('hide');
+  document.body.style.overflow = '';
+
+  const checkbox = document.getElementById('agree18');
+  if (typeof startBtn !== 'undefined' && startBtn) {
+    startBtn.disabled = !(checkbox && checkbox.checked);
   }
 }
 

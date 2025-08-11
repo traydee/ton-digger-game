@@ -539,6 +539,84 @@ header .scores .score.life-score p {
   list-style: none;
 }
 
+.fetchLives-screen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 6, 6, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fetchLives-screen .box {
+  position: relative;
+  width: 85%;
+  max-width: 500px;
+  padding: 50px;
+  border: 5px solid #e89de0;
+  background: #563b63;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 20px;
+}
+
+@media only screen and (max-width: 767px) {
+  .fetchLives-screen .box {
+    padding: 35px;
+  }
+}
+.fetchLives-screen .box .fetchLives-close-btn {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  display: flex;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+@media only screen and (max-width: 767px) {
+  .fetchLives-screen .box .fetchLives-close-btn {
+    top: 20px;
+    right: 20px;
+  }
+}
+
+.fetchLives-screen .box .info-part {
+  width: 100%;
+}
+.fetchLives-screen .box .info-part:last-child {
+  margin-bottom: 0;
+}
+.fetchLives-screen .box .info-part h4 {
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  color: #ddd4c9;
+  text-shadow: 1px 0px 0 #0e0909, 0.9239px 0.3827px 0 #0e0909, 0.7071px 0.7071px 0 #0e0909, 0.3827px 0.9239px 0 #0e0909, 0px 1px 0 #0e0909, -0.3827px 0.9239px 0 #0e0909, -0.7071px 0.7071px 0 #0e0909, -0.9239px 0.3827px 0 #0e0909, -1px 0px 0 #0e0909, -0.9239px -0.3827px 0 #0e0909, -0.7071px -0.7071px 0 #0e0909, -0.3827px -0.9239px 0 #0e0909, 0px -1px 0 #0e0909, 0.3827px -0.9239px 0 #0e0909, 0.7071px -0.7071px 0 #0e0909, 0.9239px -0.3827px 0 #0e0909;
+}
+.fetchLives-screen .box .info-part p {
+  margin-top: 15px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  color: #ddd4c9;
+  text-shadow: 1px 0px 0 #0e0909, 0.9239px 0.3827px 0 #0e0909, 0.7071px 0.7071px 0 #0e0909, 0.3827px 0.9239px 0 #0e0909, 0px 1px 0 #0e0909, -0.3827px 0.9239px 0 #0e0909, -0.7071px 0.7071px 0 #0e0909, -0.9239px 0.3827px 0 #0e0909, -1px 0px 0 #0e0909, -0.9239px -0.3827px 0 #0e0909, -0.7071px -0.7071px 0 #0e0909, -0.3827px -0.9239px 0 #0e0909, 0px -1px 0 #0e0909, 0.3827px -0.9239px 0 #0e0909, 0.7071px -0.7071px 0 #0e0909, 0.9239px -0.3827px 0 #0e0909;
+}
+.fetchLives-screenn .box .info-part p:last-child {
+  margin-bottom: 0;
+}
+.fetchLives-screenn .box .info-part p span {
+  color: #a85359;
+}
+
 .floating-btns {
   position: absolute;
   bottom: 100px;
