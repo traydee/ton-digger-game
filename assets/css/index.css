@@ -67,7 +67,7 @@ button:focus {
   pointer-events: none;
 }
 .loader img {
-  width: 150px;
+  width: 300px;
 }
 
 .background {
