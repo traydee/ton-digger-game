@@ -659,16 +659,28 @@ document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
   });
 });
 
-function checkOrientation() {
-  if (window.matchMedia("(orientation: landscape)").matches) {
-    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:black;color:white;font-size:20px;">Поверните устройство в портретный режим 📱</div>';
-  } else {
-    location.reload(); // перезагрузка, чтобы вернуть игру
-  }
-}
+(function () {
+  const blocker = document.getElementById('orientation-blocker');
 
-window.addEventListener("orientationchange", checkOrientation);
-checkOrientation();
+  function applyOrientationState() {
+    const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+
+    // Показываем/прячем оверлей
+    blocker.style.display = isLandscape ? 'flex' : 'none';
+
+    // Блокируем скролл/интеракции, когда горизонтально
+    document.documentElement.style.overflow = isLandscape ? 'hidden' : '';
+    document.body.style.overflow = isLandscape ? 'hidden' : '';
+
+    // Если у тебя есть логика паузы игры — дерни здесь:
+    // if (isLandscape) pauseGame(); else resumeGame();
+  }
+
+  // Слушатели (iOS иногда не шлёт orientationchange стабильно — добавим resize)
+  window.addEventListener('orientationchange', applyOrientationState);
+  window.addEventListener('resize', applyOrientationState);
+  applyOrientationState();
+})();
 
 // Detect tab change
 $(window).blur(function () {
