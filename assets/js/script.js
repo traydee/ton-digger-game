@@ -98,6 +98,15 @@ startBtn.addEventListener("click", async () => {
 
   if (!checkbox.checked) return;
 
+  // Пытаемся зафиксировать ориентацию на портретной
+  if (screen.orientation && screen.orientation.lock) {
+    try {
+      await screen.orientation.lock("portrait");
+    } catch (e) {
+      // Игнорируем ошибку, если браузер не поддерживает
+    }
+  }
+
   startBtn.disabled = true;
   const lives = await fetchLivesAndRender();
 
@@ -481,8 +490,8 @@ const handleLose = () => {
 
   // Получаем Telegram ID (если WebApp)
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  // const telegramId = telegramUser?.id;
-  const telegramId = 5744864118;
+  const telegramId = telegramUser?.id;
+  // const telegramId = 5744864118;
 
   // Отправляем результаты, если есть telegram_id
   if (telegramId) {
@@ -660,26 +669,49 @@ document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
 });
 
 (function () {
-  const blocker = document.getElementById('orientation-blocker');
+  const blocker = document.getElementById('access-blocker');
 
-  function applyOrientationState() {
-    const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+  // Для теста можно открыть на планшете с ?allowTablet=1
+  const allowTablet = new URLSearchParams(location.search).get('allowTablet') === '1';
 
-    // Показываем/прячем оверлей
-    blocker.style.display = isLandscape ? 'flex' : 'none';
+  function isTablet() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
 
-    // Блокируем скролл/интеракции, когда горизонтально
-    document.documentElement.style.overflow = isLandscape ? 'hidden' : '';
-    document.body.style.overflow = isLandscape ? 'hidden' : '';
+    // iPad/iPadOS (в т.ч. iPadOS 13+, маскируется под Mac)
+    const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-    // Если у тебя есть логика паузы игры — дерни здесь:
-    // if (isLandscape) pauseGame(); else resumeGame();
+    // Android планшеты: Android без "Mobile"
+    const isAndroidTablet = /Android/.test(ua) && !/Mobile/.test(ua);
+
+    // Другие планшеты
+    const isGenericTablet = /Tablet|PlayBook/.test(ua);
+
+    // Грубая эвристика: крупный тач-экран
+    const bigTouch = ('ontouchstart' in window) && Math.min(screen.width, screen.height) >= 768;
+
+    return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
   }
 
-  // Слушатели (iOS иногда не шлёт orientationchange стабильно — добавим resize)
-  window.addEventListener('orientationchange', applyOrientationState);
-  window.addEventListener('resize', applyOrientationState);
-  applyOrientationState();
+  function applyAccessState() {
+    const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+    const tablet = !allowTablet && isTablet();
+
+    const shouldBlock = tablet || isLandscape;
+    blocker.style.display = shouldBlock ? 'flex' : 'none';
+    document.documentElement.style.overflow = shouldBlock ? 'hidden' : '';
+    document.body.style.overflow = shouldBlock ? 'hidden' : '';
+
+    blocker.textContent = tablet
+      ? 'Игра недоступна на планшетах 🙏'
+      : 'Поверните устройство в портретный режим 📱';
+
+    // Если есть пауза игры — дерни тут:
+    // if (shouldBlock) pauseGame(); else resumeGame();
+  }
+
+  window.addEventListener('orientationchange', applyAccessState);
+  window.addEventListener('resize', applyAccessState);
+  applyAccessState();
 })();
 
 // Detect tab change
