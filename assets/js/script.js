@@ -714,20 +714,41 @@ document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
   applyAccessState();
 })();
 
-// Detect tab change
+// // Detect tab change
 $(window).blur(function () {
   if (gameStarted) return handleLose();
 });
 
-$(".world").click(function () {
-  if (window.innerWidth <= 768) {
-    if (gameStarted) {
-      // Play jump audio
-      if (!AUDIO_MUTED) {
-        jumpAudio.play();
-      }
+// $(".world").click(function () {
+//   if (window.innerWidth <= 768) {
+//     if (gameStarted) {
+//       // Play jump audio
+//       if (!AUDIO_MUTED) {
+//         jumpAudio.play();
+//       }
 
-      onJump({ code: "Space" });
+//       onJump({ code: "Space" });
+//     }
+//   }
+// });
+
+// --- Мобильный/тач ввод без задержки ---
+// Лучше pointerdown вместо jQuery click
+const world = document.querySelector(".world");
+
+const fireJump = () => {
+  if (!gameStarted) return;
+  if (!AUDIO_MUTED) jumpAudio.play();
+  onJump({ code: "Space", synthetic: true }); // синтетическое событие
+};
+
+world.addEventListener(
+  "pointerdown",
+  (e) => {
+    if (!IS_DESKTOP) {
+      e.preventDefault(); // убираем возможный скролл/выделение
+      fireJump();
     }
-  }
-});
+  },
+  { passive: false }
+);

@@ -1,39 +1,34 @@
 // Internal imports
-import {
-  getCustomProperty,
-  setCustomProperty,
-  incrementCustomProperty,
-} from "./updateCustomProperty.js";
+import { getCustomProperty, setCustomProperty, incrementCustomProperty } from "./updateCustomProperty.js";
 
-// Global variables
-const JUMP_SPEED = window.innerWidth > 768 ? 0.4 : 0.28;
-const GRAVITY = window.innerWidth > 768 ? 0.0012 : 0.0007;
+// Breakpoint & ground
+const DESKTOP_BP = 1024;
+const IS_DESKTOP = window.innerWidth > DESKTOP_BP;
+const GROUND_DESKTOP = 5.5;
+const GROUND_MOBILE  = 3.5;
+const GROUND_Y = IS_DESKTOP ? GROUND_DESKTOP : GROUND_MOBILE;
+
+// Physics
+const JUMP_SPEED = IS_DESKTOP ? 0.4 : 0.28;
+const GRAVITY    = IS_DESKTOP ? 0.0012 : 0.0007;
 
 // Elements
 const characterElem = document.querySelector("[data-character]");
 
-// Variables
-let isJumping;
-let yVelocity;
+// State
+let isJumping = false;
+let yVelocity = 0;
 
 // Setup character
 const setupCharacter = () => {
-  // Set variable initial values
   isJumping = false;
   yVelocity = 0;
+  setCustomProperty(characterElem, "--bottom", GROUND_Y);
 
-  // Set custom properties
-  if (window.innerWidth > 1024) {
-    setCustomProperty(characterElem, "--bottom", 5.5);
-  } else {
-    setCustomProperty(characterElem, "--bottom", 3.5);
-  }
-
-  // Remove and add event listeners
+  // Перевешиваем keydown один раз
   document.removeEventListener("keydown", onJump);
-  document.addEventListener("keydown", onJump);
+  document.addEventListener("keydown", onJump, { passive: true });
 
-  // Set character running image
   characterElem.src = "./assets/images/character-running.png";
   characterElem.style.transform = "scale(0.8)";
 };
@@ -44,81 +39,62 @@ const updateCharacter = (delta) => {
   handleJump(delta);
 };
 
-// Get character rect
+// Collision rect с буфером
 const getCharacterRect = () => {
   const rect = characterElem.getBoundingClientRect();
-  const buffer = 10; // пиксели безопасности
+  const buffer = 10;
+  const w = Math.max(0, rect.width  - buffer * 2);
+  const h = Math.max(0, rect.height - buffer * 2);
   return {
     top: rect.top + buffer,
     bottom: rect.bottom - buffer,
     left: rect.left + buffer,
     right: rect.right - buffer,
-    width: rect.width - buffer * 2,
-    height: rect.height - buffer * 2,
+    width: w,
+    height: h,
   };
 };
 
-// Set character lose
 const setCharacterLose = () => {
   characterElem.src = "./assets/images/character-standing.png";
   characterElem.style.transform = "scale(0.8)";
 };
 
-// Handle run
 const handleRun = () => {
-  // Check if jumping
   if (isJumping) {
     characterElem.src = "./assets/images/character-standing.png";
     characterElem.style.transform = "scale(0.8)";
-
     return;
   }
+  // в состоянии бега картинка уже выставлена при приземлении
 };
 
-// Handle jump
 const handleJump = (delta) => {
-  // If not jumping return
   if (!isJumping) return;
 
-  // Increment custom property
   incrementCustomProperty(characterElem, "--bottom", yVelocity * delta);
 
-  // Check if the jump is finished
-  if (window.innerWidth > 1024) {
-    if (getCustomProperty(characterElem, "--bottom") <= 5.5) {
-      setCustomProperty(characterElem, "--bottom", 5.5);
-
-      isJumping = false;
-      characterElem.src = "./assets/images/character-running.png";
-      characterElem.style.transform = "scale(0.8)";
-    }
-  } else {
-    if (getCustomProperty(characterElem, "--bottom") <= 5) {
-      setCustomProperty(characterElem, "--bottom", 3.5);
-
-      isJumping = false;
-      characterElem.src = "./assets/images/character-running.png";
-      characterElem.style.transform = "scale(0.8)";
-    }
+  // ✔️ Фикс: приземляемся на реальную "землю" по брейкпоинту
+  if (getCustomProperty(characterElem, "--bottom") <= GROUND_Y) {
+    setCustomProperty(characterElem, "--bottom", GROUND_Y);
+    isJumping = false;
+    characterElem.src = "./assets/images/character-running.png";
+    characterElem.style.transform = "scale(0.8)";
   }
 
-  // Decrease y velocity
   yVelocity -= GRAVITY * delta;
 };
 
-// On jump
 const onJump = (e) => {
-  if (e.code !== "Space" || isJumping) return;
+  // Разрешим Space и ArrowUp
+  const isKeyboard = e && (e.code === "Space" || e.code === "ArrowUp");
+  const isSynthetic = e && e.code === "Space" && e.synthetic === true;
+  if (!(isKeyboard || isSynthetic) || isJumping) return;
 
   yVelocity = JUMP_SPEED;
   isJumping = true;
 };
 
 // Export
-export {
-  setupCharacter,
-  updateCharacter,
-  getCharacterRect,
-  setCharacterLose,
-  onJump,
-};
+export { setupCharacter, updateCharacter, getCharacterRect, setCharacterLose, onJump };
+
