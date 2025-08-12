@@ -481,8 +481,8 @@ const handleLose = () => {
 
   // Получаем Telegram ID (если WebApp)
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const telegramId = telegramUser?.id;
-  // const telegramId = 5744864118;
+  // const telegramId = telegramUser?.id;
+  const telegramId = 5744864118;
 
   // Отправляем результаты, если есть telegram_id
   if (telegramId) {
@@ -658,6 +658,17 @@ document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
     window.Telegram.WebApp.openTelegramLink(shareLink);
   });
 });
+
+function checkOrientation() {
+  if (window.matchMedia("(orientation: landscape)").matches) {
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:black;color:white;font-size:20px;">Поверните устройство в портретный режим 📱</div>';
+  } else {
+    location.reload(); // перезагрузка, чтобы вернуть игру
+  }
+}
+
+window.addEventListener("orientationchange", checkOrientation);
+checkOrientation();
 
 // Detect tab change
 $(window).blur(function () {

@@ -821,6 +821,23 @@ header .scores .score.life-score p {
 
 .agreement { max-width: none; } /* если ограничение ширины ломает строку */
 
+@media screen and (orientation: landscape) {
+  body::before {
+    content: "Пожалуйста, переверните устройство в портретный режим 📱";
+    position: fixed;
+    inset: 0;
+    background: #000;
+    color: white;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    text-align: center;
+    padding: 20px;
+  }
+}
+
 .score.gem-score {
   display: none;
 }
