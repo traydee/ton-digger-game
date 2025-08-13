@@ -51,6 +51,9 @@ const lifeScoreElem = document.querySelector('[data-life-score]');
 const fetchLivesScreen = document.querySelector('[data-fetchLives-screen]');
 const fetchLivesCloseBtn = document.querySelector('[data-fetchLives-close-btn]');
 const fetchLivesContent = document.querySelector('[data-fetchLives-content]');
+const fetchSubscriptionScreen   = document.querySelector('[data-fetchSubscriptionAndRender-screen]');
+const fetchSubscriptionCloseBtn = document.querySelector('[data-fetchSubscriptionAndRender-close-btn]');
+const fetchSubscriptionBtn      = document.querySelector('[data-fetchSubscriptionAndRender-btn]');
 
 // Initially set pisel to world scale
 setPixelToWorldScale();
@@ -95,8 +98,13 @@ checkbox.addEventListener("change", () => {
 
 startBtn.addEventListener("click", async () => {
   const checkbox = document.getElementById("agree18");
-
   if (!checkbox.checked) return;
+
+  const okSub = await fetchSubscriptionAndRender();
+  if (!okSub) return;
+
+  startBtn.disabled = true;
+  const lives = await fetchLivesAndRender();
 
   // Пытаемся зафиксировать ориентацию на портретной
   if (screen.orientation && screen.orientation.lock) {
@@ -106,9 +114,6 @@ startBtn.addEventListener("click", async () => {
       // Игнорируем ошибку, если браузер не поддерживает
     }
   }
-
-  startBtn.disabled = true;
-  const lives = await fetchLivesAndRender();
 
   if (!Number.isFinite(lives) || lives <= 0) {
     startBtn.disabled = false; // остаёмся на старте
@@ -128,6 +133,9 @@ restartBtn.addEventListener("click", async () => {
 
   const checkbox = document.getElementById("agree18");
   if (checkbox && !checkbox.checked) return;
+
+  const okSub = await fetchSubscriptionAndRender();
+  if (!okSub) return;
 
   restartBtn.disabled = true;
 
@@ -651,7 +659,11 @@ function hideNoLivesModal() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", fetchLivesAndRender);
+// document.addEventListener("DOMContentLoaded", fetchLivesAndRender);
+document.addEventListener('DOMContentLoaded', async () => {
+  const okSub = await fetchSubscriptionAndRender();
+  if (okSub) await fetchLivesAndRender();
+});
 
 document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
   btn.addEventListener("click", function (e) {
@@ -668,27 +680,74 @@ document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
   });
 });
 
+async function fetchSubscriptionAndRender() {
+  const init_data = getInitData();
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/check_subscription/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ init_data }),
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const isSubscribed = Boolean(data?.is_subscribed);
+    // const isSubscribed = true;
+    if (!isSubscribed) {
+      showNoSubscriptionModal();
+    } else {
+      hideNoSubscriptionModal();
+    }
+    return isSubscribed;
+  } catch (err) {
+    console.error('Не удалось проверить подписку:', err);
+    showNoSubscriptionModal();
+    return false;
+  }
+}
+
+function showNoSubscriptionModal() {
+  if (!fetchSubscriptionScreen) {
+    alert('Сначала подпишитесь в Telegram, затем вернитесь и нажмите «Я подписался».');
+    return;
+  }
+  fetchSubscriptionScreen.classList.remove('hide');
+  document.body.style.overflow = 'hidden';
+  if (typeof startBtn !== 'undefined' && startBtn) startBtn.disabled = true;
+}
+
+function hideNoSubscriptionModal() {
+  if (!fetchSubscriptionScreen) return;
+  fetchSubscriptionScreen.classList.add('hide');
+  document.body.style.overflow = '';
+
+  const checkbox = document.getElementById('agree18');
+  if (typeof startBtn !== 'undefined' && startBtn) {
+    startBtn.disabled = !(checkbox && checkbox.checked);
+  }
+}
+
+fetchSubscriptionCloseBtn?.addEventListener('click', () => {
+  hideNoSubscriptionModal();
+});
+
+fetchSubscriptionBtn?.addEventListener('click', async () => {
+  const ok = await fetchSubscriptionAndRender();
+  if (ok) hideNoSubscriptionModal();
+});
+
 (function () {
   const blocker = document.getElementById('access-blocker');
-
-  // Для теста можно открыть на планшете с ?allowTablet=1
   const allowTablet = new URLSearchParams(location.search).get('allowTablet') === '1';
 
   function isTablet() {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
-
-    // iPad/iPadOS (в т.ч. iPadOS 13+, маскируется под Mac)
     const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-    // Android планшеты: Android без "Mobile"
     const isAndroidTablet = /Android/.test(ua) && !/Mobile/.test(ua);
-
-    // Другие планшеты
     const isGenericTablet = /Tablet|PlayBook/.test(ua);
-
-    // Грубая эвристика: крупный тач-экран
     const bigTouch = ('ontouchstart' in window) && Math.min(screen.width, screen.height) >= 768;
-
     return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
   }
 
