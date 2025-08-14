@@ -17,7 +17,8 @@ import { setupCoin, updateCoin, getCoinRects } from "./coin.js";
 import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 
 // Global variables
-const API_BASE_URL = "https://webtop.site";
+// const API_BASE_URL = "https://webtop.site";
+const API_BASE_URL = "https://test.webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 let CURRENT_SESSION = null;
