@@ -26,45 +26,49 @@ const getPlatform = () =>
   (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
 (function earlyWebTgBlock() {
-  const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
-  const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
-  const platform   = (window.Telegram?.WebApp?.platform || qsPlatform || '').toLowerCase();
-  const isWeb      = platform === 'weba' || platform === 'webk' || refIsWeb;
+  const qsPlat  = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+  const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
+  const wa      = window.Telegram && window.Telegram.WebApp;
+  const plat    = (wa?.platform || qsPlat || '').toLowerCase();
+  const isWeb   = plat === 'weba' || plat === 'webk' || refIsWeb;
 
   if (!isWeb) return;
 
-  const wa = window.Telegram?.WebApp;
-
-  const hardHide = () => {
-    document.documentElement.innerHTML =
-      '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui">Игра недоступна в веб-версии Telegram.</div>';
-    document.body.style.overflow = 'hidden';
+  let sealed = false;
+  const seal = () => {
+    if (sealed) return;
+    sealed = true;
+    try { document.body.style.overflow = 'hidden'; } catch {}
+    try {
+      document.documentElement.innerHTML =
+        '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui">Игра недоступна в веб-версии Telegram.</div>';
+    } catch {}
   };
 
-  const tryClose = () => {
+  const closeOnce = () => {
+    try { wa?.ready?.(); } catch {}
     try { wa?.close?.(); } catch {}
     setTimeout(() => {
-      if (!document.hidden) {
-        try { wa?.openTelegramLink?.('https://t.me/webtop_racing_bot?start='); } catch {}
-        try { window.top?.location?.replace('about:blank'); } catch {}
-        try { window.location.replace('about:blank'); } catch {}
-        hardHide();
-      }
-    }, 300);
+      if (sealed) return;
+      try { wa?.openTelegramLink?.('https://t.me/webtop_racing_bot'); } catch {}
+      try { window.top?.location?.replace('about:blank'); } catch {}
+      try { window.location.replace('about:blank'); } catch {}
+      seal();
+    }, 150);
   };
 
-  try { wa?.ready?.(); } catch {}
+  let tries = 0;
+  const iv = setInterval(() => {
+    if (sealed) return clearInterval(iv);
+    if (wa && !window.Telegram?.WebApp) { clearInterval(iv); return seal(); }
+    closeOnce();
+    if (++tries >= 3) clearInterval(iv);
+  }, 200);
 
-  try {
-    wa?.showAlert?.('Игра доступна только в мобильном Telegram.');
-  } catch {}
-
-  let attempts = 0;
-  const timer = setInterval(() => {
-    attempts++;
-    tryClose();
-    if (attempts >= 3) clearInterval(timer);
-  }, 150);
+  const stop = () => { try { clearInterval(iv); } catch {} seal(); };
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); }, { once: true });
+  window.addEventListener('pagehide',   stop, { once: true });
+  window.addEventListener('beforeunload', stop, { once: true });
 })();
 
 // Elements
@@ -825,13 +829,6 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
     const isLandscape = window.matchMedia('(orientation: landscape)').matches;
     const tablet = !allowTablet && isTablet();
     const webTG  = isTelegramWeb();          
-
-    if (webTG) {
-      try {
-        window.Telegram?.WebApp?.showAlert?.("Игра доступна только в мобильном Telegram.");
-        window.Telegram?.WebApp?.close?.();
-      } catch (e) {}
-    }
 
     const shouldBlock = tablet || isLandscape || webTG; 
     blocker.style.display = shouldBlock ? 'flex' : 'none';
