@@ -23,9 +23,9 @@ const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 let CURRENT_SESSION = null;
 
-const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') || '';
-const getPlatform = () =>
-  (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
+// const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') || '';
+// const getPlatform = () =>
+//   (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
 // Elements
 const worldElem = document.querySelector("[data-world]");
@@ -812,47 +812,47 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
   const blocker = document.getElementById('access-blocker');
   const allowTablet = new URLSearchParams(location.search).get('allowTablet') === '1';
 
-  const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
-  const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
+  // const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+  // const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
 
-  function isTablet() {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-    const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const isAndroidTablet = /Android/.test(ua) && !/Mobile/.test(ua);
-    const isGenericTablet = /Tablet|PlayBook/.test(ua);
-    const bigTouch = ('ontouchstart' in window) && Math.min(screen.width, screen.height) >= 768;
-    return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
-  }
+  // function isTablet() {
+  //   const ua = navigator.userAgent || navigator.vendor || window.opera;
+  //   const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  //   const isAndroidTablet = /Android/.test(ua) && !/Mobile/.test(ua);
+  //   const isGenericTablet = /Tablet|PlayBook/.test(ua);
+  //   const bigTouch = ('ontouchstart' in window) && Math.min(screen.width, screen.height) >= 768;
+  //   return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
+  // }
 
-  function isTelegramWeb() {
-    const wa = window.Telegram?.WebApp;
-    const platform = (wa?.platform || qsPlatform || '').toLowerCase();
-    return platform === 'weba' || platform === 'webk' || refIsWeb;
-  }
+  // function isTelegramWeb() {
+  //   const wa = window.Telegram?.WebApp;
+  //   const platform = (wa?.platform || qsPlatform || '').toLowerCase();
+  //   return platform === 'weba' || platform === 'webk' || refIsWeb;
+  // }
 
-  function applyAccessState() {
-    const isLandscape = window.matchMedia('(orientation: landscape)').matches;
-    const tablet = !allowTablet && isTablet();
-    const webTG  = isTelegramWeb();          
+  // function applyAccessState() {
+  //   const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+  //   const tablet = !allowTablet && isTablet();
+  //   const webTG  = isTelegramWeb();          
 
-    const shouldBlock = tablet || isLandscape || webTG; 
-    blocker.style.display = shouldBlock ? 'flex' : 'none';
-    document.documentElement.style.overflow = shouldBlock ? 'hidden' : '';
-    document.body.style.overflow = shouldBlock ? 'hidden' : '';
+  //   const shouldBlock = tablet || isLandscape || webTG; 
+  //   blocker.style.display = shouldBlock ? 'flex' : 'none';
+  //   document.documentElement.style.overflow = shouldBlock ? 'hidden' : '';
+  //   document.body.style.overflow = shouldBlock ? 'hidden' : '';
 
-    blocker.textContent = webTG
-      ? 'Игра недоступна в веб-версии Telegram.'
-      : (tablet
-          ? 'Игра недоступна на планшетах 🙏'
-          : 'Поверните устройство в портретный режим 📱');
+  //   blocker.textContent = webTG
+  //     ? 'Игра недоступна в веб-версии Telegram.'
+  //     : (tablet
+  //         ? 'Игра недоступна на планшетах 🙏'
+  //         : 'Поверните устройство в портретный режим 📱');
 
-    if (typeof startBtn !== 'undefined' && startBtn) {
-      const agree = document.getElementById('agree18');
-      startBtn.disabled = shouldBlock || !(agree && agree.checked);
-    }
-    // если есть пауза игры — дерни тут:
-    // if (shouldBlock) pauseGame(); else resumeGame();
-  }
+  //   if (typeof startBtn !== 'undefined' && startBtn) {
+  //     const agree = document.getElementById('agree18');
+  //     startBtn.disabled = shouldBlock || !(agree && agree.checked);
+  //   }
+  //   // если есть пауза игры — дерни тут:
+  //   // if (shouldBlock) pauseGame(); else resumeGame();
+  // }
 
   const t0 = Date.now();
   const int = setInterval(() => {
