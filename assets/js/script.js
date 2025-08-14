@@ -45,7 +45,7 @@ const getPlatform = () =>
     try { wa?.close?.(); } catch {}
     setTimeout(() => {
       if (!document.hidden) {
-        try { wa?.openTelegramLink?.('https://t.me/your_bot'); } catch {}
+        try { wa?.openTelegramLink?.('https://t.me/webtop_racing_bot?start='); } catch {}
         try { window.top?.location?.replace('about:blank'); } catch {}
         try { window.location.replace('about:blank'); } catch {}
         hardHide();
