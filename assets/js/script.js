@@ -28,14 +28,43 @@ const getPlatform = () =>
 (function earlyWebTgBlock() {
   const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
   const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
-  const waPlatform = (window.Telegram?.WebApp?.platform || qsPlatform || '').toLowerCase();
+  const platform   = (window.Telegram?.WebApp?.platform || qsPlatform || '').toLowerCase();
+  const isWeb      = platform === 'weba' || platform === 'webk' || refIsWeb;
 
-  if (waPlatform === 'weba' || waPlatform === 'webk' || refIsWeb) {
-    try {
-      window.Telegram?.WebApp?.showAlert?.("Игра доступна только в мобильном Telegram.");
-      window.Telegram?.WebApp?.close?.();
-    } catch (e) {}
-  }
+  if (!isWeb) return;
+
+  const wa = window.Telegram?.WebApp;
+
+  const hardHide = () => {
+    document.documentElement.innerHTML =
+      '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui">Игра недоступна в веб-версии Telegram.</div>';
+    document.body.style.overflow = 'hidden';
+  };
+
+  const tryClose = () => {
+    try { wa?.close?.(); } catch {}
+    setTimeout(() => {
+      if (!document.hidden) {
+        try { wa?.openTelegramLink?.('https://t.me/your_bot'); } catch {}
+        try { window.top?.location?.replace('about:blank'); } catch {}
+        try { window.location.replace('about:blank'); } catch {}
+        hardHide();
+      }
+    }, 300);
+  };
+
+  try { wa?.ready?.(); } catch {}
+
+  try {
+    wa?.showAlert?.('Игра доступна только в мобильном Telegram.');
+  } catch {}
+
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts++;
+    tryClose();
+    if (attempts >= 3) clearInterval(timer);
+  }, 150);
 })();
 
 // Elements
