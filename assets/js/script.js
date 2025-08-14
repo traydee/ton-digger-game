@@ -619,7 +619,7 @@ async function startServerSession() {
   const init_data = getInitData();
   const platform  = getPlatform();
   try {
-    const res = await fetch(`${API_BASE_URL}/api/session/start`, {
+    const res = await fetch(`${API_BASE_URL}/api/game_session/start`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-TG-Platform": platform },
       body: JSON.stringify({ init_data })
@@ -643,7 +643,7 @@ async function finishServerSession() {
 
   const platform = getPlatform();
   try {
-    const res = await fetch(`${API_BASE_URL}/api/session/finish`, {
+    const res = await fetch(`${API_BASE_URL}/api/game_session/finish`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-TG-Platform": platform },
       body: JSON.stringify({ session_id, end_token })
