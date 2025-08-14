@@ -25,7 +25,8 @@ const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') 
 const getPlatform = () =>
   (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
-(function earlyWebTgBlock() {
+// 🔒 Ранний бан Telegram Web — один запуск, без повторов и без showAlert
+(function earlyWebTgBlockOnce() {
   const qsPlat  = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
   const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
   const wa      = window.Telegram && window.Telegram.WebApp;
@@ -45,29 +46,34 @@ const getPlatform = () =>
     } catch {}
   };
 
-  const closeOnce = () => {
+  const attempt = () => {
     try { wa?.ready?.(); } catch {}
     try { wa?.close?.(); } catch {}
+    // фолбэки — внутри iframe (без window.top), чтобы не ловить sandbox-ошибку
     setTimeout(() => {
       if (sealed) return;
       try { wa?.openTelegramLink?.('https://t.me/webtop_racing_bot'); } catch {}
-      try { window.top?.location?.replace('about:blank'); } catch {}
       try { window.location.replace('about:blank'); } catch {}
+      try { window.stop?.(); } catch {}
       seal();
     }, 150);
   };
 
-  let tries = 0;
-  const iv = setInterval(() => {
-    if (sealed) return clearInterval(iv);
-    if (wa && !window.Telegram?.WebApp) { clearInterval(iv); return seal(); }
-    closeOnce();
-    if (++tries >= 3) clearInterval(iv);
+  // 1) Запускаем один раз сейчас
+  attempt();
+
+  // 2) И максимум один отложенный ретрай, если SDK подгрузился позже
+  setTimeout(() => {
+    if (sealed) return;
+    // если SDK уже выпилен — просто «запечатаем» DOM
+    if (!window.Telegram?.WebApp) { seal(); return; }
+    attempt();
   }, 200);
 
-  const stop = () => { try { clearInterval(iv); } catch {} seal(); };
+  // 3) На любые уходы/сворачивания — сразу герметим
+  const stop = () => { seal(); };
   document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); }, { once: true });
-  window.addEventListener('pagehide',   stop, { once: true });
+  window.addEventListener('pagehide', stop, { once: true });
   window.addEventListener('beforeunload', stop, { once: true });
 })();
 
