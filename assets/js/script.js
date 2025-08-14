@@ -621,7 +621,7 @@ async function startServerSession() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/game_session/start`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-TG-Platform": platform },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ init_data })
     });
     if (!res.ok) throw new Error(`start failed: ${res.status}`);
@@ -645,7 +645,7 @@ async function finishServerSession() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/game_session/finish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-TG-Platform": platform },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ session_id, end_token })
     });
     if (!res.ok) throw new Error(`finish failed: ${res.status}`);
@@ -663,7 +663,7 @@ async function fetchLivesAndRender() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/get_lives/`, {
       method: "POST",
-      headers: { 'Content-Type': 'application/json', "X-TG-Platform": platform },
+      headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify({ init_data })
     });
 
@@ -812,23 +812,23 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
   const blocker = document.getElementById('access-blocker');
   const allowTablet = new URLSearchParams(location.search).get('allowTablet') === '1';
 
-  // const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
-  // const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
+  const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+  const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
 
-  // function isTablet() {
-  //   const ua = navigator.userAgent || navigator.vendor || window.opera;
-  //   const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  //   const isAndroidTablet = /Android/.test(ua) && !/Mobile/.test(ua);
-  //   const isGenericTablet = /Tablet|PlayBook/.test(ua);
-  //   const bigTouch = ('ontouchstart' in window) && Math.min(screen.width, screen.height) >= 768;
-  //   return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
-  // }
+  function isTablet() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isAndroidTablet = /Android/.test(ua) && !/Mobile/.test(ua);
+    const isGenericTablet = /Tablet|PlayBook/.test(ua);
+    const bigTouch = ('ontouchstart' in window) && Math.min(screen.width, screen.height) >= 768;
+    return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
+  }
 
-  // function isTelegramWeb() {
-  //   const wa = window.Telegram?.WebApp;
-  //   const platform = (wa?.platform || qsPlatform || '').toLowerCase();
-  //   return platform === 'weba' || platform === 'webk' || refIsWeb;
-  // }
+  function isTelegramWeb() {
+    const wa = window.Telegram?.WebApp;
+    const platform = (wa?.platform || qsPlatform || '').toLowerCase();
+    return platform === 'weba' || platform === 'webk' || refIsWeb;
+  }
 
   function applyAccessState() {
     const isLandscape = window.matchMedia('(orientation: landscape)').matches;
