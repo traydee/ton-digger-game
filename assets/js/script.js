@@ -21,51 +21,9 @@ const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
-// === BAN Telegram Web ===
-(function blockTelegramWeb() {
-  // 1) быстрый признак из URL мини-аппа (в Web он добавляется)
-  const qs = new URLSearchParams(location.search);
-  const qsPlatform = (qs.get('tgWebAppPlatform') || '').toLowerCase();
-
-  // 2) рефerrer родителя часто web.telegram.org в веб-версии
-  const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
-
-  // 3) функция, которую вызовем сразу и после инициализации WebApp
-  function decideAndBlock() {
-    const wa = window.Telegram && window.Telegram.WebApp;
-    const platform = (wa && wa.platform || qsPlatform).toLowerCase();
-
-    const isWebByPlatform = platform === 'weba' || platform === 'webk';
-    const shouldBlock = isWebByPlatform || refIsWeb;
-
-    if (shouldBlock) {
-      try { wa && wa.showAlert && wa.showAlert('Игра доступна только в мобильном Telegram.'); } catch {}
-      try { wa && wa.close && wa.close(); } catch {}
-      document.documentElement.innerHTML =
-        '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui;">' +
-        'Игра недоступна в веб-версии Telegram. Откройте мини-приложение в мобильном Telegram.' +
-        '</div>';
-      // стопаем дальнейший JS
-      throw new Error('Blocked on Telegram Web');
-    }
-  }
-
-  // Первый вызов — сразу (работает, если пришёл tgWebAppPlatform/referrer)
-  decideAndBlock();
-
-  // На случай гонки: ждём появления Telegram.WebApp и решаем ещё раз
-  const start = Date.now();
-  const int = setInterval(() => {
-    if (window.Telegram && window.Telegram.WebApp) {
-      try { window.Telegram.WebApp.ready && window.Telegram.WebApp.ready(); } catch {}
-      decideAndBlock();
-      clearInterval(int);
-    } else if (Date.now() - start > 2000) {
-      // через 2с прекращаем ждать: если это был обычный браузер — решим по referrer/qs
-      clearInterval(int);
-    }
-  }, 50);
-})();
+const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') || '';
+const getPlatform = () =>
+  (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
 // Elements
 const worldElem = document.querySelector("[data-world]");
@@ -621,15 +579,17 @@ if (deviceWidth.matches) {
 }
 
 function getInitData() {
-  return window.Telegram?.WebApp?.initData || "user=%7B%22id%22%3A5744864118%2C%22first_name%22%3A%22%D0%90%D1%80%D1%82%D1%83%D1%80%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22tray_dee%22%2C%22language_code%22%3A%22ru%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FeaO3hPMNeBR3eS_55IWGG65x0v0g5jbMB0UEGDpdoZ5Inupd7SbxkLLZbyIxr98y.svg%22%7D&chat_instance=-7868909803339777740&auth_date=1754670461&signature=9meYViX7-MogPQ8kOEupLBDQKIwSLEU-PoD9dzPnHSriXc38Obfyd_JmzFuQiUbED5v4InvUK_d-48TQ5QMuAA&hash=f3e4c7c23d9f0ad216a5ee1fecf29790c46049a8c0e0a6ee4bd79263e7cefe7e";
+  return window.Telegram?.WebApp?.initData || "";
 }
 
 async function sendGameSession(telegramId, secondsScore) {
+  const platform  = getPlatform();
   try {
     const response = await fetch(`${API_BASE_URL}/api/game_session/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-TG-Platform": platform,
       },
       body: JSON.stringify({
         telegram_id: telegramId,
@@ -648,12 +608,13 @@ async function sendGameSession(telegramId, secondsScore) {
 
 async function fetchLivesAndRender() {
   const init_data = getInitData();
+  const platform  = getPlatform();
 
   try {
     const res = await fetch(`${API_BASE_URL}/api/get_lives/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ init_data }) // как «у проверки подписки»
+      headers: { 'Content-Type': 'application/json', "X-TG-Platform": platform },
+      body: JSON.stringify({ init_data })
     });
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -728,11 +689,12 @@ document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
 
 async function fetchSubscriptionAndRender() {
   const init_data = getInitData();
+  const platform  = getPlatform();
 
   try {
     const res = await fetch(`${API_BASE_URL}/api/check_subscription/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', "X-TG-Platform": platform },
       body: JSON.stringify({ init_data }),
     });
 
@@ -800,6 +762,9 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
   const blocker = document.getElementById('access-blocker');
   const allowTablet = new URLSearchParams(location.search).get('allowTablet') === '1';
 
+  const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+  const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
+
   function isTablet() {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -809,22 +774,41 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
     return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
   }
 
+  function isTelegramWeb() {
+    const wa = window.Telegram?.WebApp;
+    const platform = (wa?.platform || qsPlatform || '').toLowerCase();
+    return platform === 'weba' || platform === 'webk' || refIsWeb;
+  }
+
   function applyAccessState() {
     const isLandscape = window.matchMedia('(orientation: landscape)').matches;
     const tablet = !allowTablet && isTablet();
+    const webTG  = isTelegramWeb();          
 
-    const shouldBlock = tablet || isLandscape;
+    const shouldBlock = tablet || isLandscape || webTG; 
     blocker.style.display = shouldBlock ? 'flex' : 'none';
     document.documentElement.style.overflow = shouldBlock ? 'hidden' : '';
     document.body.style.overflow = shouldBlock ? 'hidden' : '';
 
-    blocker.textContent = tablet
-      ? 'Игра недоступна на планшетах 🙏'
-      : 'Поверните устройство в портретный режим 📱';
+    blocker.textContent = webTG
+      ? 'Игра недоступна в веб-версии Telegram.'
+      : (tablet
+          ? 'Игра недоступна на планшетах 🙏'
+          : 'Поверните устройство в портретный режим 📱');
 
-    // Если есть пауза игры — дерни тут:
+    if (typeof startBtn !== 'undefined' && startBtn) {
+      const agree = document.getElementById('agree18');
+      startBtn.disabled = shouldBlock || !(agree && agree.checked);
+    }
+    // если есть пауза игры — дерни тут:
     // if (shouldBlock) pauseGame(); else resumeGame();
   }
+
+  const t0 = Date.now();
+  const int = setInterval(() => {
+    applyAccessState();
+    if (window.Telegram?.WebApp || Date.now() - t0 > 2000) clearInterval(int);
+  }, 100);
 
   window.addEventListener('orientationchange', applyAccessState);
   window.addEventListener('resize', applyAccessState);
