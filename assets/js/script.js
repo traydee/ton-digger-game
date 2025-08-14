@@ -21,9 +21,6 @@ const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
-const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') || '';
-const getPlatform = () =>
-  (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
 // 🔒 Ранний бан Telegram Web — без showAlert, без window.top
 (function earlyWebTgBlockOnce() {
