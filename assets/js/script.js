@@ -17,15 +17,13 @@ import { setupCoin, updateCoin, getCoinRects } from "./coin.js";
 import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 
 // Global variables
-// const API_BASE_URL = "https://webtop.site";
-const API_BASE_URL = "https://test.webtop.site";
+const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
-let CURRENT_SESSION = null;
 
-// const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') || '';
-// const getPlatform = () =>
-//   (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
+const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') || '';
+const getPlatform = () =>
+  (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
 // Elements
 const worldElem = document.querySelector("[data-world]");
@@ -106,8 +104,8 @@ startBtn.addEventListener("click", async () => {
   const checkbox = document.getElementById("agree18");
   if (!checkbox.checked) return;
 
-  // const okSub = await fetchSubscriptionAndRender();
-  // if (!okSub) return;
+  const okSub = await fetchSubscriptionAndRender();
+  if (!okSub) return;
 
   startBtn.disabled = true;
   const lives = await fetchLivesAndRender();
@@ -128,7 +126,7 @@ startBtn.addEventListener("click", async () => {
 
   if (!gameStarted) {
     gameStarted = true;
-    await handleStart();
+    handleStart();
   }
   startBtn.disabled = false;
 });
@@ -140,8 +138,8 @@ restartBtn.addEventListener("click", async () => {
   const checkbox = document.getElementById("agree18");
   if (checkbox && !checkbox.checked) return;
 
-  // const okSub = await fetchSubscriptionAndRender();
-  // if (!okSub) return;
+  const okSub = await fetchSubscriptionAndRender();
+  if (!okSub) return;
 
   restartBtn.disabled = true;
 
@@ -152,7 +150,7 @@ restartBtn.addEventListener("click", async () => {
   }
 
   gameStarted = true;
-  await handleStart();
+  handleStart();
 
   restartBtn.disabled = false;
 });
@@ -432,7 +430,7 @@ function updateSecondsScore(delta) {
 }
 
 // Handle start
-async function handleStart() {
+function handleStart() {
   if (gameStarted) {
     // Play background music audio
     if (!AUDIO_MUTED) {
@@ -474,9 +472,6 @@ async function handleStart() {
     startScreenElem.classList.add("hide");
     loseScreenElem.classList.add("hide");
 
-    // Start server-side session (server computes duration; client timer is UI-only)
-+   await startServerSession();
-
     // Request animation frame
     window.requestAnimationFrame(update);
 
@@ -513,10 +508,7 @@ const handleLose = () => {
   // Отправляем результаты, если есть telegram_id
   if (telegramId) {
     // после записи сессии обновим жизни
-    // sendGameSession(telegramId, secondsScore)
-    //   .finally(() => fetchLivesAndRender());
-    // Завершаем серверную сессию; сервер сам посчитает длительность
-    finishServerSession()
+    sendGameSession(telegramId, secondsScore)
       .finally(() => fetchLivesAndRender());
   } else {
     console.warn("Telegram WebApp не доступен или пользователь не найден");
@@ -590,69 +582,27 @@ function getInitData() {
   return window.Telegram?.WebApp?.initData || "";
 }
 
-// async function sendGameSession(telegramId, secondsScore) {
-//   const platform  = getPlatform();
-//   try {
-//     const response = await fetch(`${API_BASE_URL}/api/game_session/`, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         "X-TG-Platform": platform,
-//       },
-//       body: JSON.stringify({
-//         telegram_id: telegramId,
-//         duration_seconds: Math.floor(secondsScore),
-//       }),
-//     });
-//     if (!response.ok) {
-//       throw new Error(`Ошибка отправки: ${response.status}`);
-//     }
-//     const data = await response.json();
-//     console.log("Сессия успешно сохранена:", data);
-//   } catch (error) {
-//     console.error("Ошибка при отправке сессии:", error);
-//   }
-// }
-// === Серверная сессия: старт/финиш ===
-// Стартуем сессию на сервере (сервер проверяет init_data и списывает жизнь)
-async function startServerSession() {
-  const init_data = getInitData();
+async function sendGameSession(telegramId, secondsScore) {
   const platform  = getPlatform();
   try {
-    const res = await fetch(`${API_BASE_URL}/api/game_session/start`, {
+    const response = await fetch(`${API_BASE_URL}/api/game_session/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ init_data })
+      headers: {
+        "Content-Type": "application/json",
+        "X-TG-Platform": platform,
+      },
+      body: JSON.stringify({
+        telegram_id: telegramId,
+        duration_seconds: Math.floor(secondsScore),
+      }),
     });
-    if (!res.ok) throw new Error(`start failed: ${res.status}`);
-    CURRENT_SESSION = await res.json(); // ждём { session_id, end_token }
-    if (!CURRENT_SESSION?.session_id || !CURRENT_SESSION?.end_token) {
-      throw new Error("Bad session payload");
+    if (!response.ok) {
+      throw new Error(`Ошибка отправки: ${response.status}`);
     }
-  } catch (e) {
-    console.error("Не удалось стартовать сессию на сервере:", e);
-    CURRENT_SESSION = null;
-  }
-}
-
-// Завершаем сессию (сервер сам считает секунды по start_ts/now)
-async function finishServerSession() {
-  if (!CURRENT_SESSION) return;
-  const { session_id, end_token } = CURRENT_SESSION;
-  CURRENT_SESSION = null; // одноразовая
-
-  const platform = getPlatform();
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/game_session/finish`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id, end_token })
-    });
-    if (!res.ok) throw new Error(`finish failed: ${res.status}`);
-    const data = await res.json();
-    console.log("Сессия завершена:", data);
-  } catch (e) {
-    console.error("Ошибка завершения сессии:", e);
+    const data = await response.json();
+    console.log("Сессия успешно сохранена:", data);
+  } catch (error) {
+    console.error("Ошибка при отправке сессии:", error);
   }
 }
 
@@ -663,7 +613,7 @@ async function fetchLivesAndRender() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/get_lives/`, {
       method: "POST",
-      headers: { 'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json', "X-TG-Platform": platform },
       body: JSON.stringify({ init_data })
     });
 
@@ -717,10 +667,10 @@ function hideNoLivesModal() {
 }
 
 // document.addEventListener("DOMContentLoaded", fetchLivesAndRender);
-// document.addEventListener('DOMContentLoaded', async () => {
-//   const okSub = await fetchSubscriptionAndRender();
-//   if (okSub) await fetchLivesAndRender();
-// });
+document.addEventListener('DOMContentLoaded', async () => {
+  const okSub = await fetchSubscriptionAndRender();
+  if (okSub) await fetchLivesAndRender();
+});
 
 document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
   btn.addEventListener("click", function (e) {
@@ -812,47 +762,47 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
   const blocker = document.getElementById('access-blocker');
   const allowTablet = new URLSearchParams(location.search).get('allowTablet') === '1';
 
-  // const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
-  // const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
+  const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+  const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
 
-  // function isTablet() {
-  //   const ua = navigator.userAgent || navigator.vendor || window.opera;
-  //   const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  //   const isAndroidTablet = /Android/.test(ua) && !/Mobile/.test(ua);
-  //   const isGenericTablet = /Tablet|PlayBook/.test(ua);
-  //   const bigTouch = ('ontouchstart' in window) && Math.min(screen.width, screen.height) >= 768;
-  //   return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
-  // }
+  function isTablet() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isAndroidTablet = /Android/.test(ua) && !/Mobile/.test(ua);
+    const isGenericTablet = /Tablet|PlayBook/.test(ua);
+    const bigTouch = ('ontouchstart' in window) && Math.min(screen.width, screen.height) >= 768;
+    return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
+  }
 
-  // function isTelegramWeb() {
-  //   const wa = window.Telegram?.WebApp;
-  //   const platform = (wa?.platform || qsPlatform || '').toLowerCase();
-  //   return platform === 'weba' || platform === 'webk' || refIsWeb;
-  // }
+  function isTelegramWeb() {
+    const wa = window.Telegram?.WebApp;
+    const platform = (wa?.platform || qsPlatform || '').toLowerCase();
+    return platform === 'weba' || platform === 'webk' || refIsWeb;
+  }
 
-  // function applyAccessState() {
-  //   const isLandscape = window.matchMedia('(orientation: landscape)').matches;
-  //   const tablet = !allowTablet && isTablet();
-  //   const webTG  = isTelegramWeb();          
+  function applyAccessState() {
+    const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+    const tablet = !allowTablet && isTablet();
+    const webTG  = isTelegramWeb();          
 
-  //   const shouldBlock = tablet || isLandscape || webTG; 
-  //   blocker.style.display = shouldBlock ? 'flex' : 'none';
-  //   document.documentElement.style.overflow = shouldBlock ? 'hidden' : '';
-  //   document.body.style.overflow = shouldBlock ? 'hidden' : '';
+    const shouldBlock = tablet || isLandscape || webTG; 
+    blocker.style.display = shouldBlock ? 'flex' : 'none';
+    document.documentElement.style.overflow = shouldBlock ? 'hidden' : '';
+    document.body.style.overflow = shouldBlock ? 'hidden' : '';
 
-  //   blocker.textContent = webTG
-  //     ? 'Игра недоступна в веб-версии Telegram.'
-  //     : (tablet
-  //         ? 'Игра недоступна на планшетах 🙏'
-  //         : 'Поверните устройство в портретный режим 📱');
+    blocker.textContent = webTG
+      ? 'Игра недоступна в веб-версии Telegram.'
+      : (tablet
+          ? 'Игра недоступна на планшетах 🙏'
+          : 'Поверните устройство в портретный режим 📱');
 
-  //   if (typeof startBtn !== 'undefined' && startBtn) {
-  //     const agree = document.getElementById('agree18');
-  //     startBtn.disabled = shouldBlock || !(agree && agree.checked);
-  //   }
-  //   // если есть пауза игры — дерни тут:
-  //   // if (shouldBlock) pauseGame(); else resumeGame();
-  // }
+    if (typeof startBtn !== 'undefined' && startBtn) {
+      const agree = document.getElementById('agree18');
+      startBtn.disabled = shouldBlock || !(agree && agree.checked);
+    }
+    // если есть пауза игры — дерни тут:
+    // if (shouldBlock) pauseGame(); else resumeGame();
+  }
 
   const t0 = Date.now();
   const int = setInterval(() => {
