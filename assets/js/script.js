@@ -68,8 +68,11 @@ const getPlatform = () =>
   }, 200);
 
   // прерываем дальнейшее исполнение файла
-  throw new Error('WEB_TG_BLOCKED');
+  return;
 })();
+
+// === Main game bootstrap (skips if WEB_TG blocked) ===
+(function main(){ if (window.__WEB_TG_BLOCKED__) return;
 
 // Elements
 const worldElem = document.querySelector("[data-world]");
@@ -875,3 +878,4 @@ $(".world").click(function () {
     }
   }
 });
+})();
