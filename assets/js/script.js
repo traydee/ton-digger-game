@@ -21,6 +21,16 @@ const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
+(function blockTelegramWeb() {
+  const platform = window.Telegram?.WebApp?.platform;
+  if (platform && (platform === "weba" || platform === "webk")) {
+    try { window.Telegram.WebApp.showAlert("Игра доступна только в мобильном Telegram."); } catch {}
+    try { window.Telegram.WebApp.close(); } catch {}
+    document.body.innerHTML = '<div style="color:#fff;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;font-size:18px;text-align:center;padding:20px;">Игра недоступна в веб-версии Telegram.<br>Запустите её в мобильном приложении.</div>';
+    throw new Error("Blocked on Telegram Web");
+  }
+})();
+
 // Elements
 const worldElem = document.querySelector("[data-world]");
 const gemScoreElem = document.querySelector("[data-gem-score]");
