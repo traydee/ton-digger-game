@@ -21,7 +21,6 @@ const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
-// 🔒 Ранний бан Telegram Web — без showAlert, без window.top
 (function earlyWebTgBlockOnce() {
   const qsPlat  = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
   const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
@@ -31,7 +30,7 @@ let AUDIO_MUTED = true;
 
   if (!isWeb) return;
 
-  window.__WEB_TG_BLOCKED__ = true;  // ⚑ останавливаем остальной код
+  window.__WEB_TG_BLOCKED__ = true;
 
   let sealed = false;
   const seal = () => {
@@ -56,18 +55,16 @@ let AUDIO_MUTED = true;
     }, 150);
   };
 
-  attempt(); // один раз
-  setTimeout(() => {               // + один ретрай на случай поздней инициализации SDK
+  attempt();
+  setTimeout(() => {              
     if (sealed) return;
     if (!window.Telegram?.WebApp) { seal(); return; }
     attempt();
   }, 200);
 
-  // прерываем дальнейшее исполнение файла
   return;
 })();
 
-// === Main game bootstrap (skips if WEB_TG blocked) ===
 (function main(){ if (window.__WEB_TG_BLOCKED__) return;
 
 // Elements
@@ -155,17 +152,15 @@ startBtn.addEventListener("click", async () => {
   startBtn.disabled = true;
   const lives = await fetchLivesAndRender();
 
-  // Пытаемся зафиксировать ориентацию на портретной
   if (screen.orientation && screen.orientation.lock) {
     try {
       await screen.orientation.lock("portrait");
     } catch (e) {
-      // Игнорируем ошибку, если браузер не поддерживает
     }
   }
 
   if (!Number.isFinite(lives) || lives <= 0) {
-    startBtn.disabled = false; // остаёмся на старте
+    startBtn.disabled = false;
     return;
   }
 
@@ -190,7 +185,7 @@ restartBtn.addEventListener("click", async () => {
 
   const lives = await fetchLivesAndRender();
   if (!Number.isFinite(lives) || lives <= 0) {
-    restartBtn.disabled = false; // остаёмся на экране проигрыша
+    restartBtn.disabled = false; 
     return;
   }
 
@@ -806,9 +801,6 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
   const blocker = document.getElementById('access-blocker');
   const allowTablet = new URLSearchParams(location.search).get('allowTablet') === '1';
 
-  const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
-  const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
-
   function isTablet() {
     const ua = navigator.userAgent || navigator.vendor || window.opera;
     const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -818,27 +810,18 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
     return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
   }
 
-  function isTelegramWeb() {
-    const wa = window.Telegram?.WebApp;
-    const platform = (wa?.platform || qsPlatform || '').toLowerCase();
-    return platform === 'weba' || platform === 'webk' || refIsWeb;
-  }
-
   function applyAccessState() {
     const isLandscape = window.matchMedia('(orientation: landscape)').matches;
     const tablet = !allowTablet && isTablet();
-    const webTG  = isTelegramWeb();          
 
-    const shouldBlock = tablet || isLandscape || webTG; 
+    const shouldBlock = tablet || isLandscape;
     blocker.style.display = shouldBlock ? 'flex' : 'none';
     document.documentElement.style.overflow = shouldBlock ? 'hidden' : '';
     document.body.style.overflow = shouldBlock ? 'hidden' : '';
 
-    blocker.textContent = webTG
-      ? 'Игра недоступна в веб-версии Telegram.'
-      : (tablet
-          ? 'Игра недоступна на планшетах 🙏'
-          : 'Поверните устройство в портретный режим 📱');
+    blocker.textContent = tablet
+      ? 'Игра недоступна на планшетах 🙏'
+      : 'Поверните устройство в портретный режим 📱';
 
     if (typeof startBtn !== 'undefined' && startBtn) {
       const agree = document.getElementById('agree18');
@@ -849,7 +832,7 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
   const t0 = Date.now();
   const int = setInterval(() => {
     applyAccessState();
-    if (window.Telegram?.WebApp || Date.now() - t0 > 2000) clearInterval(int);
+    if (Date.now() - t0 > 2000) clearInterval(int);
   }, 100);
 
   window.addEventListener('orientationchange', applyAccessState);
