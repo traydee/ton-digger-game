@@ -20,6 +20,7 @@ import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
+let CURRENT_SESSION = null;
 
 const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') || '';
 const getPlatform = () =>
@@ -126,7 +127,7 @@ startBtn.addEventListener("click", async () => {
 
   if (!gameStarted) {
     gameStarted = true;
-    handleStart();
+    await handleStart();
   }
   startBtn.disabled = false;
 });
@@ -150,7 +151,7 @@ restartBtn.addEventListener("click", async () => {
   }
 
   gameStarted = true;
-  handleStart();
+  await handleStart();
 
   restartBtn.disabled = false;
 });
@@ -430,7 +431,7 @@ function updateSecondsScore(delta) {
 }
 
 // Handle start
-function handleStart() {
+async function handleStart() {
   if (gameStarted) {
     // Play background music audio
     if (!AUDIO_MUTED) {
@@ -472,6 +473,9 @@ function handleStart() {
     startScreenElem.classList.add("hide");
     loseScreenElem.classList.add("hide");
 
+    // Start server-side session (server computes duration; client timer is UI-only)
++   await startServerSession();
+
     // Request animation frame
     window.requestAnimationFrame(update);
 
@@ -508,7 +512,10 @@ const handleLose = () => {
   // Отправляем результаты, если есть telegram_id
   if (telegramId) {
     // после записи сессии обновим жизни
-    sendGameSession(telegramId, secondsScore)
+    // sendGameSession(telegramId, secondsScore)
+    //   .finally(() => fetchLivesAndRender());
+    // Завершаем серверную сессию; сервер сам посчитает длительность
+    finishServerSession()
       .finally(() => fetchLivesAndRender());
   } else {
     console.warn("Telegram WebApp не доступен или пользователь не найден");
@@ -582,27 +589,69 @@ function getInitData() {
   return window.Telegram?.WebApp?.initData || "";
 }
 
-async function sendGameSession(telegramId, secondsScore) {
+// async function sendGameSession(telegramId, secondsScore) {
+//   const platform  = getPlatform();
+//   try {
+//     const response = await fetch(`${API_BASE_URL}/api/game_session/`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         "X-TG-Platform": platform,
+//       },
+//       body: JSON.stringify({
+//         telegram_id: telegramId,
+//         duration_seconds: Math.floor(secondsScore),
+//       }),
+//     });
+//     if (!response.ok) {
+//       throw new Error(`Ошибка отправки: ${response.status}`);
+//     }
+//     const data = await response.json();
+//     console.log("Сессия успешно сохранена:", data);
+//   } catch (error) {
+//     console.error("Ошибка при отправке сессии:", error);
+//   }
+// }
+// === Серверная сессия: старт/финиш ===
+// Стартуем сессию на сервере (сервер проверяет init_data и списывает жизнь)
+async function startServerSession() {
+  const init_data = getInitData();
   const platform  = getPlatform();
   try {
-    const response = await fetch(`${API_BASE_URL}/api/game_session/`, {
+    const res = await fetch(`${API_BASE_URL}/api/session/start`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-TG-Platform": platform,
-      },
-      body: JSON.stringify({
-        telegram_id: telegramId,
-        duration_seconds: Math.floor(secondsScore),
-      }),
+      headers: { "Content-Type": "application/json", "X-TG-Platform": platform },
+      body: JSON.stringify({ init_data })
     });
-    if (!response.ok) {
-      throw new Error(`Ошибка отправки: ${response.status}`);
+    if (!res.ok) throw new Error(`start failed: ${res.status}`);
+    CURRENT_SESSION = await res.json(); // ждём { session_id, end_token }
+    if (!CURRENT_SESSION?.session_id || !CURRENT_SESSION?.end_token) {
+      throw new Error("Bad session payload");
     }
-    const data = await response.json();
-    console.log("Сессия успешно сохранена:", data);
-  } catch (error) {
-    console.error("Ошибка при отправке сессии:", error);
+  } catch (e) {
+    console.error("Не удалось стартовать сессию на сервере:", e);
+    CURRENT_SESSION = null;
+  }
+}
+
+// Завершаем сессию (сервер сам считает секунды по start_ts/now)
+async function finishServerSession() {
+  if (!CURRENT_SESSION) return;
+  const { session_id, end_token } = CURRENT_SESSION;
+  CURRENT_SESSION = null; // одноразовая
+
+  const platform = getPlatform();
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/session/finish`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-TG-Platform": platform },
+      body: JSON.stringify({ session_id, end_token })
+    });
+    if (!res.ok) throw new Error(`finish failed: ${res.status}`);
+    const data = await res.json();
+    console.log("Сессия завершена:", data);
+  } catch (e) {
+    console.error("Ошибка завершения сессии:", e);
   }
 }
 
@@ -701,8 +750,8 @@ async function fetchSubscriptionAndRender() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
-    const isSubscribed = Boolean(data?.is_subscribed);
-    // const isSubscribed = true;
+    // const isSubscribed = Boolean(data?.is_subscribed);
+    const isSubscribed = true;
     if (!isSubscribed) {
       showNoSubscriptionModal();
     } else {
