@@ -21,14 +21,50 @@ const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
+// === BAN Telegram Web ===
 (function blockTelegramWeb() {
-  const platform = window.Telegram?.WebApp?.platform;
-  if (platform && (platform === "weba" || platform === "webk")) {
-    try { window.Telegram.WebApp.showAlert("Игра доступна только в мобильном Telegram."); } catch {}
-    try { window.Telegram.WebApp.close(); } catch {}
-    document.body.innerHTML = '<div style="color:#fff;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;font-size:18px;text-align:center;padding:20px;">Игра недоступна в веб-версии Telegram.<br>Запустите её в мобильном приложении.</div>';
-    throw new Error("Blocked on Telegram Web");
+  // 1) быстрый признак из URL мини-аппа (в Web он добавляется)
+  const qs = new URLSearchParams(location.search);
+  const qsPlatform = (qs.get('tgWebAppPlatform') || '').toLowerCase();
+
+  // 2) рефerrer родителя часто web.telegram.org в веб-версии
+  const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
+
+  // 3) функция, которую вызовем сразу и после инициализации WebApp
+  function decideAndBlock() {
+    const wa = window.Telegram && window.Telegram.WebApp;
+    const platform = (wa && wa.platform || qsPlatform).toLowerCase();
+
+    const isWebByPlatform = platform === 'weba' || platform === 'webk';
+    const shouldBlock = isWebByPlatform || refIsWeb;
+
+    if (shouldBlock) {
+      try { wa && wa.showAlert && wa.showAlert('Игра доступна только в мобильном Telegram.'); } catch {}
+      try { wa && wa.close && wa.close(); } catch {}
+      document.documentElement.innerHTML =
+        '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui;">' +
+        'Игра недоступна в веб-версии Telegram. Откройте мини-приложение в мобильном Telegram.' +
+        '</div>';
+      // стопаем дальнейший JS
+      throw new Error('Blocked on Telegram Web');
+    }
   }
+
+  // Первый вызов — сразу (работает, если пришёл tgWebAppPlatform/referrer)
+  decideAndBlock();
+
+  // На случай гонки: ждём появления Telegram.WebApp и решаем ещё раз
+  const start = Date.now();
+  const int = setInterval(() => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      try { window.Telegram.WebApp.ready && window.Telegram.WebApp.ready(); } catch {}
+      decideAndBlock();
+      clearInterval(int);
+    } else if (Date.now() - start > 2000) {
+      // через 2с прекращаем ждать: если это был обычный браузер — решим по referrer/qs
+      clearInterval(int);
+    }
+  }, 50);
 })();
 
 // Elements
