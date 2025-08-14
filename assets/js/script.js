@@ -716,10 +716,10 @@ function hideNoLivesModal() {
 }
 
 // document.addEventListener("DOMContentLoaded", fetchLivesAndRender);
-document.addEventListener('DOMContentLoaded', async () => {
-  const okSub = await fetchSubscriptionAndRender();
-  if (okSub) await fetchLivesAndRender();
-});
+// document.addEventListener('DOMContentLoaded', async () => {
+//   const okSub = await fetchSubscriptionAndRender();
+//   if (okSub) await fetchLivesAndRender();
+// });
 
 document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
   btn.addEventListener("click", function (e) {
@@ -750,8 +750,8 @@ async function fetchSubscriptionAndRender() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
-    // const isSubscribed = Boolean(data?.is_subscribed);
-    const isSubscribed = true;
+    const isSubscribed = Boolean(data?.is_subscribed);
+    // const isSubscribed = true;
     if (!isSubscribed) {
       showNoSubscriptionModal();
     } else {
