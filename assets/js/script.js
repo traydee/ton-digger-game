@@ -25,6 +25,19 @@ const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') 
 const getPlatform = () =>
   (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
+(function earlyWebTgBlock() {
+  const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+  const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
+  const waPlatform = (window.Telegram?.WebApp?.platform || qsPlatform || '').toLowerCase();
+
+  if (waPlatform === 'weba' || waPlatform === 'webk' || refIsWeb) {
+    try {
+      window.Telegram?.WebApp?.showAlert?.("Игра доступна только в мобильном Telegram.");
+      window.Telegram?.WebApp?.close?.();
+    } catch (e) {}
+  }
+})();
+
 // Elements
 const worldElem = document.querySelector("[data-world]");
 const gemScoreElem = document.querySelector("[data-gem-score]");
@@ -784,6 +797,13 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
     const tablet = !allowTablet && isTablet();
     const webTG  = isTelegramWeb();          
 
+    if (webTG) {
+      try {
+        window.Telegram?.WebApp?.showAlert?.("Игра доступна только в мобильном Telegram.");
+        window.Telegram?.WebApp?.close?.();
+      } catch (e) {}
+    }
+
     const shouldBlock = tablet || isLandscape || webTG; 
     blocker.style.display = shouldBlock ? 'flex' : 'none';
     document.documentElement.style.overflow = shouldBlock ? 'hidden' : '';
@@ -799,8 +819,6 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
       const agree = document.getElementById('agree18');
       startBtn.disabled = shouldBlock || !(agree && agree.checked);
     }
-    // если есть пауза игры — дерни тут:
-    // if (shouldBlock) pauseGame(); else resumeGame();
   }
 
   const t0 = Date.now();
