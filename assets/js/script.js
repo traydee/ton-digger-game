@@ -25,7 +25,7 @@ const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') 
 const getPlatform = () =>
   (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
-// 🔒 Ранний бан Telegram Web — один запуск, без повторов и без showAlert
+// 🔒 Ранний бан Telegram Web — без showAlert, без window.top
 (function earlyWebTgBlockOnce() {
   const qsPlat  = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
   const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
@@ -34,7 +34,8 @@ const getPlatform = () =>
   const isWeb   = plat === 'weba' || plat === 'webk' || refIsWeb;
 
   if (!isWeb) return;
-  window.__WEB_TG_BLOCKED__ = true;
+
+  window.__WEB_TG_BLOCKED__ = true;  // ⚑ останавливаем остальной код
 
   let sealed = false;
   const seal = () => {
@@ -50,7 +51,6 @@ const getPlatform = () =>
   const attempt = () => {
     try { wa?.ready?.(); } catch {}
     try { wa?.close?.(); } catch {}
-    // фолбэки — внутри iframe (без window.top), чтобы не ловить sandbox-ошибку
     setTimeout(() => {
       if (sealed) return;
       try { wa?.openTelegramLink?.('https://t.me/webtop_racing_bot'); } catch {}
@@ -60,22 +60,15 @@ const getPlatform = () =>
     }, 150);
   };
 
-  // 1) Запускаем один раз сейчас
-  attempt();
-
-  // 2) И максимум один отложенный ретрай, если SDK подгрузился позже
-  setTimeout(() => {
+  attempt(); // один раз
+  setTimeout(() => {               // + один ретрай на случай поздней инициализации SDK
     if (sealed) return;
-    // если SDK уже выпилен — просто «запечатаем» DOM
     if (!window.Telegram?.WebApp) { seal(); return; }
     attempt();
   }, 200);
 
-  // 3) На любые уходы/сворачивания — сразу герметим
-  const stop = () => { seal(); };
-  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); }, { once: true });
-  window.addEventListener('pagehide', stop, { once: true });
-  window.addEventListener('beforeunload', stop, { once: true });
+  // прерываем дальнейшее исполнение файла
+  throw new Error('WEB_TG_BLOCKED');
 })();
 
 // Elements
