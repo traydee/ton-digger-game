@@ -694,7 +694,7 @@ async function fetchSubscriptionAndRender() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/check_subscription/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', "x-tg-platform": platform },
       body: JSON.stringify({ init_data }),
     });
 
