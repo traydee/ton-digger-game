@@ -588,8 +588,7 @@ async function sendGameSession(telegramId, secondsScore) {
     const response = await fetch(`${API_BASE_URL}/api/game_session/`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "x-tg-platform": platform,
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         telegram_id: telegramId,
@@ -613,7 +612,7 @@ async function fetchLivesAndRender() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/get_lives/`, {
       method: "POST",
-      headers: { 'Content-Type': 'application/json', "x-tg-platform": platform },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ init_data })
     });
 
@@ -694,7 +693,7 @@ async function fetchSubscriptionAndRender() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/check_subscription/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', "x-tg-platform": platform },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ init_data }),
     });
 
