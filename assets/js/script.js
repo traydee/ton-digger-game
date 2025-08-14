@@ -26,56 +26,45 @@ const getPlatform = () =>
   (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
 (function earlyWebTgBlock() {
-  const qsPlat = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
-  const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
-  const wa = window.Telegram && window.Telegram.WebApp;
-  const plat = (wa?.platform || qsPlat || '').toLowerCase();
-  const isWeb = plat === 'weba' || plat === 'webk' || refIsWeb;
+  const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+  const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
+  const platform   = (window.Telegram?.WebApp?.platform || qsPlatform || '').toLowerCase();
+  const isWeb      = platform === 'weba' || platform === 'webk' || refIsWeb;
 
   if (!isWeb) return;
 
-  let done = false;
-  const seal = () => {
-    if (done) return;
-    done = true;
-    try { document.body.style.overflow = 'hidden'; } catch {}
-    try {
-      document.documentElement.innerHTML =
-        '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui">Игра недоступна в веб-версии Telegram.</div>';
-    } catch {}
+  const wa = window.Telegram?.WebApp;
+
+  const hardHide = () => {
+    document.documentElement.innerHTML =
+      '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui">Игра недоступна в веб-версии Telegram.</div>';
+    document.body.style.overflow = 'hidden';
   };
 
-  // ВАЖНО: в web не вызываем showAlert (он возвращает Promise и может триггерить postMessage на уничтоженный webview)
-  const tryCloseOnce = () => {
-    try { wa?.ready?.(); } catch {}
-    // Пытаемся закрыть; игнорируем ошибки
+  const tryClose = () => {
     try { wa?.close?.(); } catch {}
-
-    // Фолбэки без проверки document.hidden (в web он часто остаётся false)
     setTimeout(() => {
-      if (done) return;
-      try { wa?.openTelegramLink?.('https://t.me/webtop_racing_bot'); } catch {}
-      try { window.top?.location?.replace('about:blank'); } catch {}
-      try { window.location.replace('about:blank'); } catch {}
-      seal();
-    }, 150);
+      if (!document.hidden) {
+        try { wa?.openTelegramLink?.('https://t.me/webtop_racing_bot?start='); } catch {}
+        try { window.top?.location?.replace('about:blank'); } catch {}
+        try { window.location.replace('about:blank'); } catch {}
+        hardHide();
+      }
+    }, 300);
   };
 
-  // Несколько попыток и стоп
-  let tries = 0;
-  const iv = setInterval(() => {
-    if (done) { clearInterval(iv); return; }
-    // Если объект WebApp исчез (teardown), прекращаем попытки, чтобы не ловить postMessage на null
-    if (wa && !window.Telegram?.WebApp) { clearInterval(iv); seal(); return; }
-    tryCloseOnce();
-    if (++tries >= 3) { clearInterval(iv); }
-  }, 200);
+  try { wa?.ready?.(); } catch {}
 
-  // Останавливаем ретраи при сворачивании/уходе со страницы
-  const stop = () => { try { clearInterval(iv); } catch {} seal(); };
-  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); }, { once: true });
-  window.addEventListener('pagehide', stop, { once: true });
-  window.addEventListener('beforeunload', stop, { once: true });
+  try {
+    wa?.showAlert?.('Игра доступна только в мобильном Telegram.');
+  } catch {}
+
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts++;
+    tryClose();
+    if (attempts >= 3) clearInterval(timer);
+  }, 150);
 })();
 
 // Elements
