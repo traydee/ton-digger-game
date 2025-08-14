@@ -812,23 +812,23 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
   const blocker = document.getElementById('access-blocker');
   const allowTablet = new URLSearchParams(location.search).get('allowTablet') === '1';
 
-  const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
-  const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
+  // const qsPlatform = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+  // const refIsWeb   = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
 
-  function isTablet() {
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
-    const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const isAndroidTablet = /Android/.test(ua) && !/Mobile/.test(ua);
-    const isGenericTablet = /Tablet|PlayBook/.test(ua);
-    const bigTouch = ('ontouchstart' in window) && Math.min(screen.width, screen.height) >= 768;
-    return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
-  }
+  // function isTablet() {
+  //   const ua = navigator.userAgent || navigator.vendor || window.opera;
+  //   const isIpad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  //   const isAndroidTablet = /Android/.test(ua) && !/Mobile/.test(ua);
+  //   const isGenericTablet = /Tablet|PlayBook/.test(ua);
+  //   const bigTouch = ('ontouchstart' in window) && Math.min(screen.width, screen.height) >= 768;
+  //   return (isIpad || isAndroidTablet || isGenericTablet || bigTouch) && !/Mobile/.test(ua);
+  // }
 
-  function isTelegramWeb() {
-    const wa = window.Telegram?.WebApp;
-    const platform = (wa?.platform || qsPlatform || '').toLowerCase();
-    return platform === 'weba' || platform === 'webk' || refIsWeb;
-  }
+  // function isTelegramWeb() {
+  //   const wa = window.Telegram?.WebApp;
+  //   const platform = (wa?.platform || qsPlatform || '').toLowerCase();
+  //   return platform === 'weba' || platform === 'webk' || refIsWeb;
+  // }
 
   function applyAccessState() {
     const isLandscape = window.matchMedia('(orientation: landscape)').matches;
