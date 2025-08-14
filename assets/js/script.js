@@ -741,10 +741,10 @@ fetchSubscriptionCloseBtn?.addEventListener('click', () => {
   hideNoSubscriptionModal();
 });
 
-// fetchSubscriptionBtn?.addEventListener('click', async () => {
-//   const ok = await fetchSubscriptionAndRender();
-//   if (ok) hideNoSubscriptionModal();
-// });
+fetchSubscriptionBtn?.addEventListener('click', async () => {
+  const ok = await fetchSubscriptionAndRender();
+  if (ok) hideNoSubscriptionModal();
+});
 
 fetchSubscriptionBtn?.addEventListener('click', (e) => {
   e.preventDefault();
