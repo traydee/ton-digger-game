@@ -34,6 +34,7 @@ const getPlatform = () =>
   const isWeb   = plat === 'weba' || plat === 'webk' || refIsWeb;
 
   if (!isWeb) return;
+  window.__WEB_TG_BLOCKED__ = true;
 
   let sealed = false;
   const seal = () => {
