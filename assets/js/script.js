@@ -105,8 +105,8 @@ startBtn.addEventListener("click", async () => {
   const checkbox = document.getElementById("agree18");
   if (!checkbox.checked) return;
 
-  const okSub = await fetchSubscriptionAndRender();
-  if (!okSub) return;
+  // const okSub = await fetchSubscriptionAndRender();
+  // if (!okSub) return;
 
   startBtn.disabled = true;
   const lives = await fetchLivesAndRender();
@@ -139,8 +139,8 @@ restartBtn.addEventListener("click", async () => {
   const checkbox = document.getElementById("agree18");
   if (checkbox && !checkbox.checked) return;
 
-  const okSub = await fetchSubscriptionAndRender();
-  if (!okSub) return;
+  // const okSub = await fetchSubscriptionAndRender();
+  // if (!okSub) return;
 
   restartBtn.disabled = true;
 
