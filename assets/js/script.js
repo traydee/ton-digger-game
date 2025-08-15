@@ -727,7 +727,7 @@ document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
     if (!tgUser || !tgUser.id) return;
 
     const link = `https://t.me/webtop_racing_bot?start=${tgUser.id}`;
-    const comment = `Привет! Заходи в колесо-вебкама и получай бесплатное продвижение на Stripchat и Chaturbate, бесплатные лайки Chaturbate и курс от ТОП модели!`;
+    const comment = `Привет! Заходи в игру WEBCAM-RACING, выигрывай денежные призы и бесплатное продвижение на Stripchat, Chaturbate, бесплатные лайки Chaturbate и курс от ТОП модели!`;
 
     const shareLink = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(comment)}`;
     window.Telegram.WebApp.openTelegramLink(shareLink);
