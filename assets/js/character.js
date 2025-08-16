@@ -103,3 +103,27 @@ setInterval(() => {
     characterElem.style.position = "absolute";
   }
 }, 1000);
+
+// Anti-cheat: prevent style.bottom and tampering with --bottom value
+setInterval(() => {
+  const computed = getComputedStyle(characterElem);
+
+  // Restore position if changed
+  if (computed.position !== "absolute") {
+    characterElem.style.position = "absolute";
+  }
+
+  // Remove inline 'bottom' override if exists
+  if (characterElem.style.bottom) {
+    characterElem.style.bottom = "";
+  }
+
+  // Verify --bottom value integrity
+  const expectedBottomPx = currentBottom * 6;
+  const actualBottomPx = parseFloat(computed.bottom);
+
+  if (Math.abs(actualBottomPx - expectedBottomPx) > 1) {
+    // If there's a large mismatch, reset the --bottom style directly
+    setCustomProperty(characterElem, "--bottom", currentBottom);
+  }
+}, 500);
