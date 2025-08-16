@@ -6,6 +6,7 @@ import {
 } from "./updateCustomProperty.js";
 
 // Global variables
+let stopInactivityCheck = false;
 const JUMP_SPEED = window.innerWidth > 768 ? 0.4 : 0.28;
 const GRAVITY = window.innerWidth > 768 ? 0.0012 : 0.0007;
 
@@ -141,8 +142,11 @@ const onJump = (e) => {
 };
 
 function resetInactivityTimer() {
+  if (stopInactivityCheck) return;
+
   if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
   inactivityTimeoutId = setTimeout(() => {
+    if (stopInactivityCheck) return;
     if (Date.now() - lastJumpTime >= 4000) {
       location.reload();
     }
@@ -156,4 +160,5 @@ export {
   getCharacterRect,
   setCharacterLose,
   onJump,
+  stopInactivityCheck,
 };

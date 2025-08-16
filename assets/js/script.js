@@ -11,6 +11,7 @@ import {
   getCharacterRect,
   setCharacterLose,
   onJump,
+  stopInactivityCheck,
 } from "./character.js";
 import { setupObstacle, updateObstacle, getObstacleRects } from "./obstacle.js";
 import { setupCoin, updateCoin, getCoinRects } from "./coin.js";
@@ -556,6 +557,8 @@ const handleLose = () => {
   }
 
   setCharacterLose();
+
+  stopInactivityCheck = true;
 
   // Получаем Telegram ID (если WebApp)
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
