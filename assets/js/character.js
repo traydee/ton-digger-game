@@ -34,6 +34,25 @@ const setupCharacter = () => {
   // Remove and add event listeners
   document.removeEventListener("keydown", onJump);
   document.addEventListener("keydown", onJump);
+  document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") e.preventDefault();
+  });
+
+  document.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+  });
+
+  document.addEventListener("click", (e) => {
+    e.preventDefault();
+  });
+
+  document.addEventListener("touchstart", (e) => {
+    if (isJumping) return;
+    lastJumpTime = Date.now();
+    resetInactivityTimer();
+    yVelocity = JUMP_SPEED;
+    isJumping = true;
+  });
   resetInactivityTimer();
 
   // Set character running image
