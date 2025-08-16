@@ -848,6 +848,54 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
   }
 });
 
+Element.prototype.setAttribute = new Proxy(Element.prototype.setAttribute, {
+  apply(target, thisArg, args) {
+    if (args[0] === "style") {
+      throw new Error("Style modification is blocked.");
+    }
+    return Reflect.apply(target, thisArg, args);
+  }
+});
+
+Object.defineProperty(HTMLElement.prototype, 'style', {
+  set() {
+    throw new Error('Direct style changes are blocked.');
+  },
+});
+
+const revertStyleChanges = new MutationObserver((mutations) => {
+  for (const m of mutations) {
+    if (m.type === "attributes" && m.attributeName === "style") {
+      m.target.removeAttribute("style");
+      console.warn("🚫 Style change reverted");
+    }
+  }
+});
+
+revertStyleChanges.observe(document.body, {
+  attributes: true,
+  subtree: true,
+  attributeFilter: ["style"],
+});
+
+document.styleSheets.forEach(sheet => {
+  if (sheet.insertRule) {
+    sheet.insertRule = () => { throw new Error("insertRule is disabled"); };
+  }
+});
+
+CSSStyleDeclaration.prototype.setProperty = new Proxy(CSSStyleDeclaration.prototype.setProperty, {
+  apply(target, thisArg, args) {
+    throw new Error("CSS modification blocked.");
+  }
+});
+
+Object.defineProperty(document, "styleSheets", {
+  get() {
+    throw new Error("Access to stylesheets is blocked.");
+  }
+});
+
 (function () {
   const blocker = document.getElementById('access-blocker');
   const allowTablet = new URLSearchParams(location.search).get('allowTablet') === '1';
