@@ -30,6 +30,12 @@ const setupCharacter = () => {
   characterElem.src = "./assets/images/character-running.png";
   characterElem.style.transform = "scale(0.8)";
   characterElem.style.position = "absolute"; // Force position
+
+  // Anti-cheat cleanup: remove potentially injected inline styles
+  characterElem.style.removeProperty("bottom");
+  characterElem.style.removeProperty("top");
+  characterElem.style.removeProperty("left");
+
   validateStartPosition();
 };
 
