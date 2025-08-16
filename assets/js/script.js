@@ -21,6 +21,16 @@ const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
+const publicKey = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6CLTHnd6PG12cxjWPLLD
++3XpnYz6jgl4V99kJyeuluHZtTt6rsk5lR49NuXsRtnQpgGSOyhVia6TaJeAilZM
+TZ3tW0C1QNbY5u2Tt5ELEEAQMXsBmBseVo2Sh7qvRhOtxXrxWwCeUTuF16j7DQ08
+sgxAGkXT8zz7AWbBQzr9+ZXh+zgjtZ0pk3VdQ0XRKIk/IiQgub/cmkNn9YYYZfPi
+9nXsOd3a+uqaxXJKRxGPXAAut94L05kFQHWrmVF4MUHWNthHesijLjjkk23OQ7UX
+RiLsmEPh6e5QgeYAdUqoIUiH+GnEetOmcsBuWhPgFHMI1EDoHcS16hbgIUObl5f9
+twIDAQAB
+-----END PUBLIC KEY-----`;
+
 const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') || '';
 const getPlatform = () =>
   (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
@@ -629,28 +639,32 @@ function getInitData() {
   return window.Telegram?.WebApp?.initData || "";
 }
 
-async function sendGameSession(telegramId, secondsScore) {
-  const platform  = getPlatform();
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/game_session/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-tg-platform": platform
-      },
-      body: JSON.stringify({
-        telegram_id: telegramId,
-        duration_seconds: Math.floor(secondsScore),
-      }),
-    });
-    if (!response.ok) {
-      throw new Error(`Ошибка отправки: ${response.status}`);
-    }
-    const data = await response.json();
-    console.log("Сессия успешно сохранена:", data);
-  } catch (error) {
-    console.error("Ошибка при отправке сессии:", error);
-  }
+function encryptData(data) {
+  const jsEncrypt = new JSEncrypt();
+  jsEncrypt.setPublicKey(publicKey);
+  return jsEncrypt.encrypt(JSON.stringify(data));
+}
+
+async function sendGameSession(telegramId, duration) {
+  const payload = {
+    telegram_id: telegramId,
+    duration_seconds: Math.floor(duration),
+    timestamp: Date.now(),
+    nonce: crypto.randomUUID(),
+  };
+
+  const encrypted = encryptData(payload);
+
+  const response = await fetch(`${API_BASE_URL}/api/game_session/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ data: encrypted }),
+  });
+
+  const res = await response.json();
+  console.log(res);
 }
 
 async function fetchLivesAndRender() {
