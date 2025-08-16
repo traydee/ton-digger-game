@@ -29,6 +29,7 @@ const setupCharacter = () => {
 
   characterElem.src = "./assets/images/character-running.png";
   characterElem.style.transform = "scale(0.8)";
+  characterElem.style.position = "absolute"; // Force position
 };
 
 // Update per frame
@@ -95,3 +96,10 @@ export {
   setCharacterLose,
   onJump,
 };
+
+// Anti-cheat: ensure position stays absolute
+setInterval(() => {
+  if (characterElem.style.position !== "absolute") {
+    characterElem.style.position = "absolute";
+  }
+}, 1000);
