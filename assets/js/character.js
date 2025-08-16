@@ -15,6 +15,8 @@ const characterElem = document.querySelector("[data-character]");
 // Variables
 let isJumping;
 let yVelocity;
+let lastJumpTime = Date.now();
+let inactivityTimeoutId = null;
 
 // Setup character
 const setupCharacter = () => {
@@ -32,6 +34,7 @@ const setupCharacter = () => {
   // Remove and add event listeners
   document.removeEventListener("keydown", onJump);
   document.addEventListener("keydown", onJump);
+  resetInactivityTimer();
 
   // Set character running image
   characterElem.src = "./assets/images/character-running.png";
@@ -110,9 +113,22 @@ const handleJump = (delta) => {
 const onJump = (e) => {
   if (e.code !== "Space" || isJumping) return;
 
+  lastJumpTime = Date.now();
+  resetInactivityTimer();
+
   yVelocity = JUMP_SPEED;
   isJumping = true;
 };
+
+function resetInactivityTimer() {
+  if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
+  inactivityTimeoutId = setTimeout(() => {
+    if (Date.now() - lastJumpTime >= 4000) {
+      alert("Игра остановлена: авто не двигался 4 секунды.");
+      location.reload(); // или вызов handleLose(), если доступен
+    }
+  }, 4000);
+}
 
 // Export
 export {
