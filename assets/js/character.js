@@ -1,94 +1,53 @@
 // Internal imports
 import {
+  getCustomProperty,
   setCustomProperty,
+  incrementCustomProperty,
 } from "./updateCustomProperty.js";
 
-// Global constants
+// Global variables
 const JUMP_SPEED = window.innerWidth > 768 ? 0.4 : 0.28;
 const GRAVITY = window.innerWidth > 768 ? 0.0012 : 0.0007;
-const MIN_BOTTOM = window.innerWidth > 1024 ? 5.5 : 3.5;
 
 // Elements
 const characterElem = document.querySelector("[data-character]");
 
-// Internal state (не доступен извне!)
-let isJumping = false;
-let yVelocity = 0;
-let currentBottom = MIN_BOTTOM;
+// Variables
+let isJumping;
+let yVelocity;
 
 // Setup character
 const setupCharacter = () => {
+  // Set variable initial values
   isJumping = false;
   yVelocity = 0;
-  currentBottom = MIN_BOTTOM;
 
-  setCustomProperty(characterElem, "--bottom", currentBottom);
+  // Set custom properties
+  if (window.innerWidth > 1024) {
+    setCustomProperty(characterElem, "--bottom", 5.5);
+  } else {
+    setCustomProperty(characterElem, "--bottom", 3.5);
+  }
 
+  // Remove and add event listeners
   document.removeEventListener("keydown", onJump);
   document.addEventListener("keydown", onJump);
 
+  // Set character running image
   characterElem.src = "./assets/images/character-running.png";
-  characterElem.removeAttribute("style"); // remove all inline styles to ensure CSS takes full control
-
-    // Reapply trusted styles after reset
   characterElem.style.transform = "scale(0.8)";
-  characterElem.style.position = "absolute";
-
-
-  validateStartPosition();
 };
 
-const validateStartPosition = () => {
-  const computed = getComputedStyle(characterElem);
-  const actualBottom = parseFloat(computed.bottom);
-  const expectedBottom = currentBottom * 6;
-
-  if (Math.abs(actualBottom - expectedBottom) > 1) {
-    console.warn("❌ Некорректная стартовая позиция. Игра завершена.");
-    setCharacterLose();
-  }
-};
-
-// Update per frame
+// Update character
 const updateCharacter = (delta) => {
-  if (isJumping) {
-    handleJump(delta);
-  }
+  handleRun();
+  handleJump(delta);
 };
 
-// Jump logic
-const handleJump = (delta) => {
-  // Применяем вертикальную скорость
-  currentBottom += yVelocity * delta;
-
-  // Гравитация
-  yVelocity -= GRAVITY * delta;
-
-  // Приземление
-  if (currentBottom <= MIN_BOTTOM) {
-    currentBottom = MIN_BOTTOM;
-    isJumping = false;
-    yVelocity = 0;
-    characterElem.src = "./assets/images/character-running.png";
-  } else {
-    characterElem.src = "./assets/images/character-standing.png";
-  }
-
-  setCustomProperty(characterElem, "--bottom", currentBottom);
-};
-
-// Обработчик прыжка
-const onJump = (e) => {
-  if (e.code !== "Space" || isJumping) return;
-
-  yVelocity = JUMP_SPEED;
-  isJumping = true;
-};
-
-// Получение прямоугольника (для коллизий и столкновений)
+// Get character rect
 const getCharacterRect = () => {
   const rect = characterElem.getBoundingClientRect();
-  const buffer = 10; // защита от мелких соприкосновений
+  const buffer = 10; // пиксели безопасности
   return {
     top: rect.top + buffer,
     bottom: rect.bottom - buffer,
@@ -99,10 +58,60 @@ const getCharacterRect = () => {
   };
 };
 
-// Смерть персонажа
+// Set character lose
 const setCharacterLose = () => {
   characterElem.src = "./assets/images/character-standing.png";
   characterElem.style.transform = "scale(0.8)";
+};
+
+// Handle run
+const handleRun = () => {
+  // Check if jumping
+  if (isJumping) {
+    characterElem.src = "./assets/images/character-standing.png";
+    characterElem.style.transform = "scale(0.8)";
+
+    return;
+  }
+};
+
+// Handle jump
+const handleJump = (delta) => {
+  // If not jumping return
+  if (!isJumping) return;
+
+  // Increment custom property
+  incrementCustomProperty(characterElem, "--bottom", yVelocity * delta);
+
+  // Check if the jump is finished
+  if (window.innerWidth > 1024) {
+    if (getCustomProperty(characterElem, "--bottom") <= 5.5) {
+      setCustomProperty(characterElem, "--bottom", 5.5);
+
+      isJumping = false;
+      characterElem.src = "./assets/images/character-running.png";
+      characterElem.style.transform = "scale(0.8)";
+    }
+  } else {
+    if (getCustomProperty(characterElem, "--bottom") <= 5) {
+      setCustomProperty(characterElem, "--bottom", 3.5);
+
+      isJumping = false;
+      characterElem.src = "./assets/images/character-running.png";
+      characterElem.style.transform = "scale(0.8)";
+    }
+  }
+
+  // Decrease y velocity
+  yVelocity -= GRAVITY * delta;
+};
+
+// On jump
+const onJump = (e) => {
+  if (e.code !== "Space" || isJumping) return;
+
+  yVelocity = JUMP_SPEED;
+  isJumping = true;
 };
 
 // Export
@@ -113,24 +122,3 @@ export {
   setCharacterLose,
   onJump,
 };
-
-// Anti-cheat: enforce style integrity and prevent tampering
-setInterval(() => {
-  const computed = getComputedStyle(characterElem);
-
-  // Ensure position stays absolute
-  if (computed.position !== "absolute") {
-    characterElem.style.position = "absolute";
-  }
-
-  // Remove inline bottom override if it exists
-  characterElem.style.removeProperty("bottom");
-
-  // Verify --bottom value integrity
-  const expectedBottomPx = currentBottom * 6;
-  const actualBottomPx = parseFloat(computed.bottom);
-
-  if (Math.abs(actualBottomPx - expectedBottomPx) > 1) {
-    setCustomProperty(characterElem, "--bottom", currentBottom);
-  }
-}, 500);

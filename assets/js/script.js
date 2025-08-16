@@ -17,33 +17,6 @@ import { setupCoin, updateCoin, getCoinRects } from "./coin.js";
 import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 
 // Global variables
-// Защита от изменений стилей и JS-инъекций
-window.eval = () => { throw new Error("eval is disabled"); };
-window.Function = () => { throw new Error("Function constructor is disabled"); };
-
-Element.prototype.setAttribute = new Proxy(Element.prototype.setAttribute, {
-  apply(target, thisArg, args) {
-    if (args[0] === "style") {
-      throw new Error("Direct style modification is blocked.");
-    }
-    return Reflect.apply(target, thisArg, args);
-  }
-});
-
-const styleObserver = new MutationObserver((mutations) => {
-  for (const mutation of mutations) {
-    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-      mutation.target.removeAttribute('style');
-      console.warn('❌ Style change blocked!');
-    }
-  }
-});
-
-styleObserver.observe(document.body, {
-  attributes: true,
-  subtree: true,
-  attributeFilter: ['style'],
-});
 const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
@@ -848,54 +821,6 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
   }
 });
 
-Element.prototype.setAttribute = new Proxy(Element.prototype.setAttribute, {
-  apply(target, thisArg, args) {
-    if (args[0] === "style") {
-      throw new Error("Style modification is blocked.");
-    }
-    return Reflect.apply(target, thisArg, args);
-  }
-});
-
-Object.defineProperty(HTMLElement.prototype, 'style', {
-  set() {
-    throw new Error('Direct style changes are blocked.');
-  },
-});
-
-const revertStyleChanges = new MutationObserver((mutations) => {
-  for (const m of mutations) {
-    if (m.type === "attributes" && m.attributeName === "style") {
-      m.target.removeAttribute("style");
-      console.warn("🚫 Style change reverted");
-    }
-  }
-});
-
-revertStyleChanges.observe(document.body, {
-  attributes: true,
-  subtree: true,
-  attributeFilter: ["style"],
-});
-
-document.styleSheets.forEach(sheet => {
-  if (sheet.insertRule) {
-    sheet.insertRule = () => { throw new Error("insertRule is disabled"); };
-  }
-});
-
-CSSStyleDeclaration.prototype.setProperty = new Proxy(CSSStyleDeclaration.prototype.setProperty, {
-  apply(target, thisArg, args) {
-    throw new Error("CSS modification blocked.");
-  }
-});
-
-Object.defineProperty(document, "styleSheets", {
-  get() {
-    throw new Error("Access to stylesheets is blocked.");
-  }
-});
-
 (function () {
   const blocker = document.getElementById('access-blocker');
   const allowTablet = new URLSearchParams(location.search).get('allowTablet') === '1';
@@ -968,3 +893,59 @@ $(".world").click(function () {
     }
   }
 });
+
+// === Style modification protection (block DevTools, allow internal JS) ===
+(function () {
+  const allowedStyleChangeFlag = Symbol("allowedStyleChange");
+
+  // Перехватываем setAttribute
+  const originalSetAttribute = Element.prototype.setAttribute;
+  Element.prototype.setAttribute = function (name, value) {
+    if (name === "style" && !this[allowedStyleChangeFlag]) {
+      console.warn("❌ Style change blocked (setAttribute)");
+      return;
+    }
+    return originalSetAttribute.call(this, name, value);
+  };
+
+  // Перехватываем style.setProperty
+  const originalSetProperty = CSSStyleDeclaration.prototype.setProperty;
+  CSSStyleDeclaration.prototype.setProperty = function (prop, value, priority) {
+    const owner = this.__ownerElement || this.parentRule?.parentStyleSheet?.ownerNode;
+    if (owner && !owner[allowedStyleChangeFlag]) {
+      console.warn("❌ Style change blocked (setProperty)");
+      return;
+    }
+    return originalSetProperty.call(this, prop, value, priority);
+  };
+
+  // MutationObserver для защиты от прямого изменения style через DevTools
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (
+        mutation.type === "attributes" &&
+        mutation.attributeName === "style" &&
+        !mutation.target[allowedStyleChangeFlag]
+      ) {
+        mutation.target.removeAttribute("style");
+        console.warn("❌ Style change reverted!");
+      }
+    }
+  });
+
+  observer.observe(document.documentElement, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["style"],
+  });
+
+  // Разрешающая обёртка
+  window.allowStyleChange = function (cb) {
+    document.querySelectorAll("*").forEach(el => el[allowedStyleChangeFlag] = true);
+    try {
+      cb();
+    } finally {
+      document.querySelectorAll("*").forEach(el => delete el[allowedStyleChangeFlag]);
+    }
+  };
+})();
