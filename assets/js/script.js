@@ -850,15 +850,7 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
 
     const shouldBlock = tablet || isLandscape || webTG; 
     blocker.style.display = shouldBlock ? 'flex' : 'none';
-    // Make the blocker unremovable through devtools
-    if (shouldBlock) {
-      blocker.setAttribute("style", "display: flex !important;");
-      Object.freeze(blocker.style);
-      const observer = new MutationObserver(() => {
-        blocker.setAttribute("style", "display: flex !important;");
-      });
-      observer.observe(blocker, { attributes: true, attributeFilter: ['style'] });
-    }
+    
     document.documentElement.style.overflow = shouldBlock ? 'hidden' : '';
     document.body.style.overflow = shouldBlock ? 'hidden' : '';
 
