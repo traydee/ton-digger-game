@@ -29,26 +29,13 @@ const setupCharacter = () => {
     setCustomProperty(characterElem, "--bottom", 3.5);
   }
 
-  // Заблокировать управление с клавиатуры и мыши, кроме тача
-  ["keydown", "mousedown", "mouseup", "click", "pointerdown", "pointerup"].forEach((eventName) => {
-    document.addEventListener(eventName, (e) => {
-      if (!(e.pointerType === "touch")) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }, true); // capture phase
-  });
+  // Remove and add event listeners
+  document.removeEventListener("keydown", onJump);
+  document.addEventListener("keydown", onJump);
 
   // Set character running image
   characterElem.src = "./assets/images/character-running.png";
   characterElem.style.transform = "scale(0.8)";
-
-  // Прыжок только на touch
-  document.addEventListener("touchstart", (e) => {
-    if (isJumping) return;
-    yVelocity = JUMP_SPEED;
-    isJumping = true;
-  });
 };
 
 // Update character
