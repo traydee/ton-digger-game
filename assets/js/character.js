@@ -33,7 +33,6 @@ const setupCharacter = () => {
 
   // Remove and add event listeners
   document.removeEventListener("keydown", onJump);
-  document.addEventListener("keydown", onJump);
   document.addEventListener("keydown", (e) => {
     if (e.code === "Space") e.preventDefault();
   });
@@ -58,6 +57,17 @@ const setupCharacter = () => {
   // Set character running image
   characterElem.src = "./assets/images/character-running.png";
   characterElem.style.transform = "scale(0.8)";
+
+  // Блокируем любые клики мышкой
+  ["mousedown", "mouseup", "click", "pointerdown", "pointerup"].forEach((eventName) => {
+    document.addEventListener(eventName, (e) => {
+      // если это не тач-устройство — блокируем
+      if (!(e.pointerType === "touch")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true); // использовать capture-фазу
+  });
 };
 
 // Update character
