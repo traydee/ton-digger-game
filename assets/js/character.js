@@ -141,12 +141,14 @@ const onJump = (e) => {
   isJumping = true;
 };
 
+const inactivityControl = { stop: false };
+
 function resetInactivityTimer() {
-  if (stopInactivityCheck) return;
+  if (inactivityControl.stop) return;
 
   if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
   inactivityTimeoutId = setTimeout(() => {
-    if (stopInactivityCheck) return;
+    if (inactivityControl.stop) return;
     if (Date.now() - lastJumpTime >= 4000) {
       location.reload();
     }
@@ -160,5 +162,5 @@ export {
   getCharacterRect,
   setCharacterLose,
   onJump,
-  stopInactivityCheck,
+  inactivityControl,
 };
