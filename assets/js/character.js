@@ -28,13 +28,12 @@ const setupCharacter = () => {
   document.addEventListener("keydown", onJump);
 
   characterElem.src = "./assets/images/character-running.png";
-
-  // Anti-cheat cleanup: remove potentially injected inline styles
   characterElem.removeAttribute("style"); // remove all inline styles to ensure CSS takes full control
 
-  // Reapply trusted styles after reset
+    // Reapply trusted styles after reset
   characterElem.style.transform = "scale(0.8)";
   characterElem.style.position = "absolute";
+
 
   validateStartPosition();
 };
@@ -115,33 +114,23 @@ export {
   onJump,
 };
 
-// Anti-cheat: ensure position stays absolute
-setInterval(() => {
-  if (characterElem.style.position !== "absolute") {
-    characterElem.style.position = "absolute";
-  }
-}, 1000);
-
-// Anti-cheat: prevent style.bottom and tampering with --bottom value
+// Anti-cheat: enforce style integrity and prevent tampering
 setInterval(() => {
   const computed = getComputedStyle(characterElem);
 
-  // Restore position if changed
+  // Ensure position stays absolute
   if (computed.position !== "absolute") {
     characterElem.style.position = "absolute";
   }
 
-  // Remove inline 'bottom' override if exists
-  if (characterElem.style.bottom) {
-    characterElem.style.bottom = "";
-  }
+  // Remove inline bottom override if it exists
+  characterElem.style.removeProperty("bottom");
 
   // Verify --bottom value integrity
   const expectedBottomPx = currentBottom * 6;
   const actualBottomPx = parseFloat(computed.bottom);
 
   if (Math.abs(actualBottomPx - expectedBottomPx) > 1) {
-    // If there's a large mismatch, reset the --bottom style directly
     setCustomProperty(characterElem, "--bottom", currentBottom);
   }
 }, 500);
