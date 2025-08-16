@@ -17,8 +17,6 @@ let isJumping;
 let yVelocity;
 let lastJumpTime = Date.now();
 let inactivityTimeoutId = null;
-let isGameOver = false;
-let isGameRunning = false;
 
 // Setup character
 const setupCharacter = () => {
@@ -54,7 +52,6 @@ const setupCharacter = () => {
     yVelocity = JUMP_SPEED;
     isJumping = true;
   });
-  isGameRunning = true;
   resetInactivityTimer();
 
   // Set character running image
@@ -95,7 +92,6 @@ const getCharacterRect = () => {
 
 // Set character lose
 const setCharacterLose = () => {
-  isGameRunning = false;
   characterElem.src = "./assets/images/character-standing.png";
   characterElem.style.transform = "scale(0.8)";
 };
@@ -156,8 +152,7 @@ const onJump = (e) => {
 function resetInactivityTimer() {
   if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
   inactivityTimeoutId = setTimeout(() => {
-    if (Date.now() - lastJumpTime >= 4000 && isGameRunning) {
-      isGameOver = true;
+    if (Date.now() - lastJumpTime >= 4000) {
       location.reload();
     }
   }, 4000);
