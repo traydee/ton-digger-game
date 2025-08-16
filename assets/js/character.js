@@ -37,12 +37,14 @@ const setupCharacter = () => {
     if (e.code === "Space") e.preventDefault();
   });
 
-  document.addEventListener("mousedown", (e) => {
-    e.preventDefault();
-  });
-
-  document.addEventListener("click", (e) => {
-    e.preventDefault();
+  // Universal mouse event blocking
+  ["mousedown", "mouseup", "click", "pointerdown", "pointerup"].forEach((eventName) => {
+    document.addEventListener(eventName, (e) => {
+      if (!(e.pointerType === "touch")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true); // capture phase
   });
 
   document.addEventListener("touchstart", (e) => {
