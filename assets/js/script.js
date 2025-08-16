@@ -8,6 +8,7 @@ import { setupGround, updateGround } from "./ground.js";
 import {
   setupCharacter,
   updateCharacter,
+  getCharacterRect,
   setCharacterLose,
   onJump,
 } from "./character.js";
@@ -19,7 +20,6 @@ import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
-const getCharacterRect = window.getCharacterRect;
 
 const publicKey = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6CLTHnd6PG12cxjWPLLD
