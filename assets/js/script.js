@@ -646,6 +646,7 @@ function encryptData(data) {
 }
 
 async function sendGameSession(telegramId, duration) {
+  const platform  = getPlatform();
   const payload = {
     telegram_id: telegramId,
     duration_seconds: Math.floor(duration),
@@ -659,6 +660,7 @@ async function sendGameSession(telegramId, duration) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      'x-tg-platform': platform
     },
     body: JSON.stringify({ data: encrypted }),
   });
