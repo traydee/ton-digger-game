@@ -182,6 +182,26 @@ startBtn.addEventListener("click", async () => {
   }
 
   if (!gameStarted) {
+    // Жёсткая проверка computed-стилей персонажа
+    const characterElem = document.querySelector("[data-character]");
+    const computed = getComputedStyle(characterElem);
+    const expectedBottom = window.innerWidth > 1024 ? 5.5 * 6 : 3.5 * 6;
+    const actualBottom = parseFloat(computed.bottom);
+    const actualPosition = computed.position;
+    const actualTransform = computed.transform;
+    const actualCustomBottom = parseFloat(computed.getPropertyValue('--bottom'));
+    const expectedCustomBottom = window.innerWidth > 1024 ? 5.5 : 3.5;
+
+    if (
+      Math.abs(actualBottom - expectedBottom) > 1 ||
+      actualPosition !== "absolute" ||
+      !actualTransform.includes("matrix") ||
+      Math.abs(actualCustomBottom - expectedCustomBottom) > 0.1
+    ) {
+      alert("🚫 Игра не может быть запущена: обнаружено вмешательство в стили.");
+      startBtn.disabled = false;
+      return;
+    }
     gameStarted = true;
     handleStart();
   }
