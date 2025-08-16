@@ -17,6 +17,7 @@ let isJumping;
 let yVelocity;
 let lastJumpTime = Date.now();
 let inactivityTimeoutId = null;
+let isGameOver = false; // Добавлено для отслеживания состояния игры
 
 // Setup character
 const setupCharacter = () => {
@@ -152,7 +153,8 @@ const onJump = (e) => {
 function resetInactivityTimer() {
   if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
   inactivityTimeoutId = setTimeout(() => {
-    if (Date.now() - lastJumpTime >= 4000) {
+    if (Date.now() - lastJumpTime >= 4000 && !isGameOver) {
+      isGameOver = true;
       location.reload();
     }
   }, 4000);
