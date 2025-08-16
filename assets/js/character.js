@@ -124,8 +124,12 @@ function resetInactivityTimer() {
   if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
   inactivityTimeoutId = setTimeout(() => {
     if (Date.now() - lastJumpTime >= 4000) {
-      alert("Игра остановлена: авто не двигался 4 секунды.");
-      location.reload(); // или вызов handleLose(), если доступен
+      isJumping = false;
+      yVelocity = 0;
+      setCustomProperty(characterElem, "--bottom", window.innerWidth > 1024 ? 5.5 : 3.5);
+      characterElem.src = "./assets/images/character-running.png";
+      characterElem.style.transform = "scale(0.8)";
+      inactivityTimeoutId = null; // Reset timeout ID
     }
   }, 4000);
 }
