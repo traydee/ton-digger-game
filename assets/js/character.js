@@ -28,13 +28,13 @@ const setupCharacter = () => {
   document.addEventListener("keydown", onJump);
 
   characterElem.src = "./assets/images/character-running.png";
-  characterElem.style.transform = "scale(0.8)";
-  characterElem.style.position = "absolute"; // Force position
 
   // Anti-cheat cleanup: remove potentially injected inline styles
-  characterElem.style.removeProperty("bottom");
-  characterElem.style.removeProperty("top");
-  characterElem.style.removeProperty("left");
+  characterElem.removeAttribute("style"); // remove all inline styles to ensure CSS takes full control
+
+  // Reapply trusted styles after reset
+  characterElem.style.transform = "scale(0.8)";
+  characterElem.style.position = "absolute";
 
   validateStartPosition();
 };
