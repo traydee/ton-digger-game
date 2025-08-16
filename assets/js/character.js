@@ -31,28 +31,7 @@ const setupCharacter = () => {
 
   // Remove and add event listeners
   document.removeEventListener("keydown", onJump);
-  document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") e.preventDefault();
-  });
-
-  // Universal mouse event blocking
-  ["mousedown", "mouseup", "click", "pointerdown", "pointerup"].forEach((eventName) => {
-    document.addEventListener(eventName, (e) => {
-      if (!(e.pointerType === "touch")) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }, true); // capture phase
-  });
-
-  document.addEventListener("touchstart", (e) => {
-    if (isJumping) return;
-    lastJumpTime = Date.now();
-    resetInactivityTimer();
-    yVelocity = JUMP_SPEED;
-    isJumping = true;
-  });
-  resetInactivityTimer();
+  document.addEventListener("keydown", onJump);
 
   // Set character running image
   characterElem.src = "./assets/images/character-running.png";
