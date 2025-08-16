@@ -182,23 +182,36 @@ startBtn.addEventListener("click", async () => {
   }
 
   if (!gameStarted) {
-    // Жёсткая проверка computed-стилей персонажа
     const characterElem = document.querySelector("[data-character]");
     const computed = getComputedStyle(characterElem);
-    const expectedBottom = window.innerWidth > 1024 ? 5.5 * 6 : 3.5 * 6;
-    const actualBottom = parseFloat(computed.bottom);
-    const actualPosition = computed.position;
-    const actualTransform = computed.transform;
-    const actualCustomBottom = parseFloat(computed.getPropertyValue('--bottom'));
-    const expectedCustomBottom = window.innerWidth > 1024 ? 5.5 : 3.5;
 
-    if (
-      Math.abs(actualBottom - expectedBottom) > 1 ||
-      actualPosition !== "absolute" ||
-      !actualTransform.includes("matrix") ||
-      Math.abs(actualCustomBottom - expectedCustomBottom) > 0.1
-    ) {
-      alert("🚫 Игра не может быть запущена: обнаружено вмешательство в стили.");
+    const expected = {
+      position: "absolute",
+      height: window.innerWidth > 1024 ? "220px" : "80px",
+      left: "15px",
+      transform: "matrix(0.8, 0, 0, 0.8, 0, 0)",
+      "--bottom": window.innerWidth > 1024 ? "5.5" : "3.5",
+      bottom: (window.innerWidth > 1024 ? 5.5 * 6 : 3.5 * 6) + "px",
+    };
+
+    const actual = {
+      position: computed.position,
+      height: computed.height,
+      left: computed.left,
+      transform: computed.transform,
+      "--bottom": computed.getPropertyValue("--bottom").trim(),
+      bottom: computed.bottom,
+    };
+
+    const mismatches = [];
+
+    for (const key in expected) {
+      if (expected[key] !== actual[key]) {
+        mismatches.push(`${key}: expected ${expected[key]}, got ${actual[key]}`);
+      }
+    }
+
+    if (mismatches.length > 0) {
       startBtn.disabled = false;
       return;
     }
