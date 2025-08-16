@@ -150,8 +150,11 @@ const onJump = (e) => {
 };
 
 function resetInactivityTimer() {
+  if (!gameStarted) return; // ⛔ Неактивная игра — не сбрасываем
+
   if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
   inactivityTimeoutId = setTimeout(() => {
+    if (!gameStarted) return; // ⛔ Повторная проверка перед reload
     if (Date.now() - lastJumpTime >= 4000) {
       location.reload();
     }
