@@ -920,6 +920,12 @@ $(".world").click(function () {
   };
 
   // MutationObserver для защиты от прямого изменения style через DevTools
+  let devtoolsProtectionActive = false;
+
+  setTimeout(() => {
+    devtoolsProtectionActive = true;
+  }, 1000); // Подождать 1 секунду после старта
+
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
       if (
@@ -928,7 +934,8 @@ $(".world").click(function () {
         !mutation.target[allowedStyleChangeFlag]
       ) {
         mutation.target.removeAttribute("style");
-        console.warn("❌ Style change reverted!");
+        if (devtoolsProtectionActive)
+          console.warn("❌ Style change reverted!");
       }
     }
   });
