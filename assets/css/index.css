@@ -1,8 +1,4 @@
 * {
-  all: unset !important;
-  pointer-events: none !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -957,17 +953,4 @@ header .scores .score.life-score p {
 
 .share-btn {
   display: none !important;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-html, body {
-  overflow: hidden;
-  touch-action: none;
 }
