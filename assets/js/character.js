@@ -1,4 +1,3 @@
-import { gameStarted } from './script.js';
 // Internal imports
 import {
   getCustomProperty,
@@ -24,7 +23,6 @@ const setupCharacter = () => {
   // Set variable initial values
   isJumping = false;
   yVelocity = 0;
-  resetInactivityTimer();
 
   // Set custom properties
   if (window.innerWidth > 1024) {
@@ -59,17 +57,6 @@ const setupCharacter = () => {
   // Set character running image
   characterElem.src = "./assets/images/character-running.png";
   characterElem.style.transform = "scale(0.8)";
-
-  // Блокируем любые клики мышкой
-  ["mousedown", "mouseup", "click", "pointerdown", "pointerup"].forEach((eventName) => {
-    document.addEventListener(eventName, (e) => {
-      // если это не тач-устройство — блокируем
-      if (!(e.pointerType === "touch")) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }, true); // использовать capture-фазу
-  });
 };
 
 // Update character
@@ -152,11 +139,8 @@ const onJump = (e) => {
 };
 
 function resetInactivityTimer() {
-  if (!gameStarted) return;
-
   if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
   inactivityTimeoutId = setTimeout(() => {
-    if (!gameStarted) return;
     if (Date.now() - lastJumpTime >= 4000) {
       location.reload();
     }
