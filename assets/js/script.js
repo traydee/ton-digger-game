@@ -17,6 +17,33 @@ import { setupCoin, updateCoin, getCoinRects } from "./coin.js";
 import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 
 // Global variables
+// Защита от изменений стилей и JS-инъекций
+window.eval = () => { throw new Error("eval is disabled"); };
+window.Function = () => { throw new Error("Function constructor is disabled"); };
+
+Element.prototype.setAttribute = new Proxy(Element.prototype.setAttribute, {
+  apply(target, thisArg, args) {
+    if (args[0] === "style") {
+      throw new Error("Direct style modification is blocked.");
+    }
+    return Reflect.apply(target, thisArg, args);
+  }
+});
+
+const styleObserver = new MutationObserver((mutations) => {
+  for (const mutation of mutations) {
+    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+      mutation.target.removeAttribute('style');
+      console.warn('❌ Style change blocked!');
+    }
+  }
+});
+
+styleObserver.observe(document.body, {
+  attributes: true,
+  subtree: true,
+  attributeFilter: ['style'],
+});
 const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
@@ -182,39 +209,6 @@ startBtn.addEventListener("click", async () => {
   }
 
   if (!gameStarted) {
-    const characterElem = document.querySelector("[data-character]");
-    const computed = getComputedStyle(characterElem);
-
-    const expected = {
-      position: "absolute",
-      height: window.innerWidth > 1024 ? "220px" : "80px",
-      left: "15px",
-      transform: "matrix(0.8, 0, 0, 0.8, 0, 0)",
-      "--bottom": window.innerWidth > 1024 ? "5.5" : "3.5",
-      bottom: (window.innerWidth > 1024 ? 5.5 * 6 : 3.5 * 6) + "px",
-    };
-
-    const actual = {
-      position: computed.position,
-      height: computed.height,
-      left: computed.left,
-      transform: computed.transform,
-      "--bottom": computed.getPropertyValue("--bottom").trim(),
-      bottom: computed.bottom,
-    };
-
-    const mismatches = [];
-
-    for (const key in expected) {
-      if (expected[key] !== actual[key]) {
-        mismatches.push(`${key}: expected ${expected[key]}, got ${actual[key]}`);
-      }
-    }
-
-    if (mismatches.length > 0) {
-      startBtn.disabled = false;
-      return;
-    }
     gameStarted = true;
     handleStart();
   }
