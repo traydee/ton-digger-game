@@ -6,7 +6,6 @@ import {
 } from "./updateCustomProperty.js";
 
 // Global variables
-let stopInactivityCheck = false;
 const JUMP_SPEED = window.innerWidth > 768 ? 0.4 : 0.28;
 const GRAVITY = window.innerWidth > 768 ? 0.0012 : 0.0007;
 
@@ -16,8 +15,6 @@ const characterElem = document.querySelector("[data-character]");
 // Variables
 let isJumping;
 let yVelocity;
-let lastJumpTime = Date.now();
-let inactivityTimeoutId = null;
 
 // Setup character
 const setupCharacter = () => {
@@ -134,26 +131,9 @@ const handleJump = (delta) => {
 const onJump = (e) => {
   if (e.code !== "Space" || isJumping) return;
 
-  lastJumpTime = Date.now();
-  resetInactivityTimer();
-
   yVelocity = JUMP_SPEED;
   isJumping = true;
 };
-
-const inactivityControl = { stop: false };
-
-function resetInactivityTimer() {
-  if (inactivityControl.stop) return;
-
-  if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
-  inactivityTimeoutId = setTimeout(() => {
-    if (inactivityControl.stop) return;
-    if (Date.now() - lastJumpTime >= 4000) {
-      location.reload();
-    }
-  }, 4000);
-}
 
 // Export
 export {
@@ -162,5 +142,4 @@ export {
   getCharacterRect,
   setCharacterLose,
   onJump,
-  inactivityControl,
 };
