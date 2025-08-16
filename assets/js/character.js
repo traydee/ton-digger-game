@@ -30,6 +30,18 @@ const setupCharacter = () => {
   characterElem.src = "./assets/images/character-running.png";
   characterElem.style.transform = "scale(0.8)";
   characterElem.style.position = "absolute"; // Force position
+  validateStartPosition();
+};
+
+const validateStartPosition = () => {
+  const computed = getComputedStyle(characterElem);
+  const actualBottom = parseFloat(computed.bottom);
+  const expectedBottom = currentBottom * 6;
+
+  if (Math.abs(actualBottom - expectedBottom) > 1) {
+    console.warn("❌ Некорректная стартовая позиция. Игра завершена.");
+    setCharacterLose();
+  }
 };
 
 // Update per frame
