@@ -850,7 +850,7 @@ fetchSubscriptionBtn?.addEventListener('click', (e) => {
 
     const shouldBlock = tablet || isLandscape || webTG; 
     blocker.style.display = shouldBlock ? 'flex' : 'none';
-    
+
     document.documentElement.style.overflow = shouldBlock ? 'hidden' : '';
     document.body.style.overflow = shouldBlock ? 'hidden' : '';
 

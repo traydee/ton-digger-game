@@ -1,3 +1,4 @@
+import { gameStarted } from './script.js';
 // Internal imports
 import {
   getCustomProperty,
@@ -23,6 +24,7 @@ const setupCharacter = () => {
   // Set variable initial values
   isJumping = false;
   yVelocity = 0;
+  resetInactivityTimer();
 
   // Set custom properties
   if (window.innerWidth > 1024) {
@@ -150,11 +152,11 @@ const onJump = (e) => {
 };
 
 function resetInactivityTimer() {
-  if (!gameStarted) return; // ⛔ Неактивная игра — не сбрасываем
+  if (!gameStarted) return;
 
   if (inactivityTimeoutId) clearTimeout(inactivityTimeoutId);
   inactivityTimeoutId = setTimeout(() => {
-    if (!gameStarted) return; // ⛔ Повторная проверка перед reload
+    if (!gameStarted) return;
     if (Date.now() - lastJumpTime >= 4000) {
       location.reload();
     }
