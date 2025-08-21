@@ -570,22 +570,30 @@ const handleLose = () => {
         if (data?.prize) {
           const { title, description, image_url, manager_link } = data.prize;
 
-          document.querySelector('[data-prize-title]').textContent = `🎁 ${title}`;
-          document.querySelector('[data-prize-description]').textContent = description;
-
+          const titleElem = document.querySelector('[data-prize-title]');
+          const descElem = document.querySelector('[data-prize-description]');
           const img = document.querySelector('[data-prize-image]');
-          if (image_url) {
-            img.src = image_url;
-            img.style.display = 'block';
-          } else {
-            img.style.display = 'none';
+          const linkElem = document.querySelector('[data-prize-link]');
+          const prizeBlock = document.querySelector('.prize-block');
+
+          if (titleElem) titleElem.textContent = `🎁 ${title}`;
+          if (descElem) descElem.textContent = description;
+
+          if (img) {
+            if (image_url) {
+              img.src = image_url;
+              img.style.display = 'block';
+            } else {
+              img.style.display = 'none';
+            }
           }
 
-          const linkElem = document.querySelector('[data-prize-link]');
-          linkElem.href = manager_link;
-          linkElem.textContent = 'Claim your prize';
+          if (linkElem && manager_link) {
+            linkElem.href = manager_link;
+            linkElem.textContent = 'Claim your prize';
+          }
 
-          document.querySelector('.prize-block').style.display = 'block';
+          if (prizeBlock) prizeBlock.style.display = 'block';
         }
       })
       .finally(() => fetchLivesAndRender());

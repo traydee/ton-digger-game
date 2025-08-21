@@ -319,7 +319,7 @@ header .scores .score.life-score p {
   border-radius: 20px;
 }
 .lose-screen .box img {
-  margin-bottom: 25px;
+  margin-bottom: 15px;
   width: 150px;
 }
 @media only screen and (max-width: 767px) {
