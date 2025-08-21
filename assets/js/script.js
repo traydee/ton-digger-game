@@ -573,17 +573,7 @@ const handleLose = () => {
           const titleElem = document.querySelector('[data-prize-title]');
           const descElem = document.querySelector('[data-prize-description]');
           const img = document.querySelector('[data-prize-image]');
-          if (image_url) {
-            img.src = image_url;
-            img.style.display = 'block';
-
-            img.onerror = () => {
-              img.style.display = 'none';
-            };
-          } else {
-            img.style.display = 'none';
-          }
-          const linkElem = document.querySelector('[data-prize-link]');
+          const linkBtn = document.querySelector('button[data-prize-link]');
           const prizeBlock = document.querySelector('.prize-block');
 
           if (titleElem) titleElem.textContent = `🎁 ${title}`;
@@ -593,14 +583,17 @@ const handleLose = () => {
             if (image_url) {
               img.src = image_url;
               img.style.display = 'block';
+              img.onerror = () => img.style.display = 'none';
             } else {
               img.style.display = 'none';
             }
           }
 
-          if (linkElem && manager_link) {
-            linkElem.href = manager_link;
-            linkElem.textContent = 'Claim your prize';
+          if (linkBtn && manager_link) {
+            linkBtn.style.display = 'inline-block';
+            linkBtn.onclick = () => {
+              window.open(manager_link, '_blank');
+            };
           }
 
           if (prizeBlock) prizeBlock.style.display = 'block';
@@ -721,6 +714,7 @@ async function sendGameSession(telegramId, duration) {
 
 async function fetchLivesAndRender() {
   const init_data = getInitData();
+  // const init_data = window.Telegram?.WebApp?.initData || "user=%7B%22id%22%3A5744864118%2C%22first_name%22%3A%22%D0%90%D1%80%D1%82%D1%83%D1%80%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22tray_dee%22%2C%22language_code%22%3A%22ru%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FeaO3hPMNeBR3eS_55IWGG65x0v0g5jbMB0UEGDpdoZ5Inupd7SbxkLLZbyIxr98y.svg%22%7D&chat_instance=-7868909803339777740&auth_date=1755787183&signature=1sqNFw0_nOqtfI6nahDnJu43Jl8O8zRlmcDqVq-flUScG3nBR_lZRKlEPCl5um8SjMfvJGh-slxFXrnqLymlBw&hash=27793cf1edd35273cc34a165493bda52fa74639dc03812e199e9be1cd9678f65";
   const platform  = getPlatform();
 
   try {
@@ -802,6 +796,7 @@ document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
 
 async function fetchSubscriptionAndRender() {
   const init_data = getInitData();
+  // const init_data = window.Telegram?.WebApp?.initData || "user=%7B%22id%22%3A5744864118%2C%22first_name%22%3A%22%D0%90%D1%80%D1%82%D1%83%D1%80%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22tray_dee%22%2C%22language_code%22%3A%22ru%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FeaO3hPMNeBR3eS_55IWGG65x0v0g5jbMB0UEGDpdoZ5Inupd7SbxkLLZbyIxr98y.svg%22%7D&chat_instance=-7868909803339777740&auth_date=1755787183&signature=1sqNFw0_nOqtfI6nahDnJu43Jl8O8zRlmcDqVq-flUScG3nBR_lZRKlEPCl5um8SjMfvJGh-slxFXrnqLymlBw&hash=27793cf1edd35273cc34a165493bda52fa74639dc03812e199e9be1cd9678f65";
   const platform  = getPlatform();
 
   try {

@@ -310,7 +310,7 @@ header .scores .score.life-score p {
   position: relative;
   width: 85%;
   max-width: 500px;
-  padding: 20px 30px 30px 30px;
+  padding: 10px 10px 20px 10px;
   border: 5px solid #e89de0;
   background: #563b63;
   display: flex;
@@ -329,7 +329,7 @@ header .scores .score.life-score p {
   }
 }
 .lose-screen .box .info-part {
-  margin-bottom: 50px;
+  margin-bottom: 10px;
 }
 .lose-screen .box .info-part h4 {
   margin-bottom: 20px;
@@ -353,6 +353,11 @@ header .scores .score.life-score p {
   margin: 10px 0;
 }
 
+.prize-block p {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .prize-block img[src=""],
 .prize-block img[src=" "],
 .prize-block img[src="null"],
@@ -369,23 +374,24 @@ header .scores .score.life-score p {
 .lose-screen .box .box-footer {
   display: flex;
   align-items: center;
-  gap: 30px;
-  margin-top: 5px !important;
+  gap: 15px;
+  margin-top: 0 !important;
 }
 @media only screen and (max-width: 767px) {
   .lose-screen .box .box-footer {
     flex-direction: column;
-    gap: 10px;
-    margin-top: 5px !important;
+    gap: 5px;
+    margin-top: 0 !important;
   }
 }
 .lose-screen .box .box-footer .restart-btn {
   position: relative;
+  white-space: nowrap;
   display: flex;
 }
 .lose-screen .box .box-footer .restart-btn span {
   position: absolute;
-  top: 30%;
+  top: 31%;
   left: 50%;
   transform: translateX(-50%);
   font-family: "Annyant Roman", sans-serif;
