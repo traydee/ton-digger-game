@@ -348,17 +348,22 @@ header .scores .score.life-score p {
   text-shadow: 1px 0px 0 #0e0909, 0.9239px 0.3827px 0 #0e0909, 0.7071px 0.7071px 0 #0e0909, 0.3827px 0.9239px 0 #0e0909, 0px 1px 0 #0e0909, -0.3827px 0.9239px 0 #0e0909, -0.7071px 0.7071px 0 #0e0909, -0.9239px 0.3827px 0 #0e0909, -1px 0px 0 #0e0909, -0.9239px -0.3827px 0 #0e0909, -0.7071px -0.7071px 0 #0e0909, -0.3827px -0.9239px 0 #0e0909, 0px -1px 0 #0e0909, 0.3827px -0.9239px 0 #0e0909, 0.7071px -0.7071px 0 #0e0909, 0.9239px -0.3827px 0 #0e0909;
 }
 
-.prize-block {
-  margin-bottom: 0 !important;
+.prize-block img {
+  max-height: 150px;
+  margin: 10px 0;
 }
 
-.prize-block img:empty,
 .prize-block img[src=""],
-.prize-block img:not([src]) {
+.prize-block img[src=" "],
+.prize-block img[src="null"],
+.prize-block img[src="undefined"] {
   display: none !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+}
+
+.lose-screen [data-prize-image] {
+  max-height: 120px;
+  border-radius: 10px;
+  margin: 10px 0;
 }
 
 .lose-screen .box .box-footer {
