@@ -573,6 +573,16 @@ const handleLose = () => {
           const titleElem = document.querySelector('[data-prize-title]');
           const descElem = document.querySelector('[data-prize-description]');
           const img = document.querySelector('[data-prize-image]');
+          if (image_url) {
+            img.src = image_url;
+            img.style.display = 'block';
+
+            img.onerror = () => {
+              img.style.display = 'none';
+            };
+          } else {
+            img.style.display = 'none';
+          }
           const linkElem = document.querySelector('[data-prize-link]');
           const prizeBlock = document.querySelector('.prize-block');
 
