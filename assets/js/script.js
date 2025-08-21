@@ -17,7 +17,7 @@ import { setupCoin, updateCoin, getCoinRects } from "./coin.js";
 import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 
 // Global variables
-const API_BASE_URL = "https://test.webtop.site";
+const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
@@ -35,52 +35,52 @@ const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') 
 const getPlatform = () =>
   (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
-// (function earlyWebTgBlock() {
-//   const qsPlat  = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
-//   const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
-//   const wa      = window.Telegram && window.Telegram.WebApp;
-//   const plat    = (wa?.platform || qsPlat || '').toLowerCase();
-//   const isWeb   = plat === 'weba' || plat === 'webk' || refIsWeb;
+(function earlyWebTgBlock() {
+  const qsPlat  = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+  const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
+  const wa      = window.Telegram && window.Telegram.WebApp;
+  const plat    = (wa?.platform || qsPlat || '').toLowerCase();
+  const isWeb   = plat === 'weba' || plat === 'webk' || refIsWeb;
 
-//   if (!isWeb) return;
+  if (!isWeb) return;
 
-//   let sealed = false;
-//   const seal = () => {
-//     if (sealed) return;
-//     sealed = true;
-//     try { document.body.style.overflow = 'hidden'; } catch {}
-//     try {
-//       document.documentElement.innerHTML =
-//         '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui">Игра недоступна в веб-версии Telegram.</div>';
-//     } catch {}
-//   };
+  let sealed = false;
+  const seal = () => {
+    if (sealed) return;
+    sealed = true;
+    try { document.body.style.overflow = 'hidden'; } catch {}
+    try {
+      document.documentElement.innerHTML =
+        '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui">Игра недоступна в веб-версии Telegram.</div>';
+    } catch {}
+  };
 
-//   const closeOnce = () => {
-//     try { wa?.ready?.(); } catch {}
-//     try { wa?.close?.(); } catch {}
+  const closeOnce = () => {
+    try { wa?.ready?.(); } catch {}
+    try { wa?.close?.(); } catch {}
 
-//     setTimeout(() => {
-//       if (sealed) return;
-//       try { wa?.openTelegramLink?.('https://t.me/webtop_racing_bot'); } catch {}
-//       try { window.location.replace('about:blank'); } catch {}
-//       try { window.stop?.(); } catch {}
-//       seal();
-//     }, 150);
-//   };
+    setTimeout(() => {
+      if (sealed) return;
+      try { wa?.openTelegramLink?.('https://t.me/webtop_racing_bot'); } catch {}
+      try { window.location.replace('about:blank'); } catch {}
+      try { window.stop?.(); } catch {}
+      seal();
+    }, 150);
+  };
 
-//   let tries = 0;
-//   const iv = setInterval(() => {
-//     if (sealed) return clearInterval(iv);
-//     if (wa && !window.Telegram?.WebApp) { clearInterval(iv); return seal(); }
-//     closeOnce();
-//     if (++tries >= 3) clearInterval(iv);
-//   }, 200);
+  let tries = 0;
+  const iv = setInterval(() => {
+    if (sealed) return clearInterval(iv);
+    if (wa && !window.Telegram?.WebApp) { clearInterval(iv); return seal(); }
+    closeOnce();
+    if (++tries >= 3) clearInterval(iv);
+  }, 200);
 
-//   const stop = () => { try { clearInterval(iv); } catch {} seal(); };
-//   document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); }, { once: true });
-//   window.addEventListener('pagehide',   stop, { once: true });
-//   window.addEventListener('beforeunload', stop, { once: true });
-// })();
+  const stop = () => { try { clearInterval(iv); } catch {} seal(); };
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); }, { once: true });
+  window.addEventListener('pagehide',   stop, { once: true });
+  window.addEventListener('beforeunload', stop, { once: true });
+})();
 
 // Elements
 const worldElem = document.querySelector("[data-world]");
@@ -751,8 +751,7 @@ document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
 });
 
 async function fetchSubscriptionAndRender() {
-  // const init_data = getInitData();
-  const init_data = window.Telegram?.WebApp?.initData || "user=%7B%22id%22%3A5744864118%2C%22first_name%22%3A%22%D0%90%D1%80%D1%82%D1%83%D1%80%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22tray_dee%22%2C%22language_code%22%3A%22ru%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FeaO3hPMNeBR3eS_55IWGG65x0v0g5jbMB0UEGDpdoZ5Inupd7SbxkLLZbyIxr98y.svg%22%7D&chat_instance=-7868909803339777740&auth_date=1755778619&signature=qj49Q5qv0irNGv-lfaPNZDjrfiF6KM9bDJc4gmEGu7yG76UyTDmgqza_UyfFTiRiH5GgH12bZvN3IPPqns7uCw&hash=1d32f51765354b07d555b64a97549bca8752c6f9ce0e808bc9e99587c4e9b457";
+  const init_data = getInitData();
   const platform  = getPlatform();
 
   try {
