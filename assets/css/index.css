@@ -319,11 +319,12 @@ header .scores .score.life-score p {
   border-radius: 20px;
 }
 .lose-screen .box img {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   width: 150px;
 }
 @media only screen and (max-width: 767px) {
   .lose-screen .box img {
+    margin-bottom: 10px;
     width: 120px;
   }
 }
@@ -348,8 +349,6 @@ header .scores .score.life-score p {
 }
 .lose-screen .box .box-footer {
   display: flex;
-  flex-direction: row !important;
-  justify-content: center;
   align-items: center;
   gap: 30px;
 }
