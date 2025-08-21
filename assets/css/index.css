@@ -351,11 +351,13 @@ header .scores .score.life-score p {
   display: flex;
   align-items: center;
   gap: 30px;
+  margin-top: 5px;
 }
 @media only screen and (max-width: 767px) {
   .lose-screen .box .box-footer {
     flex-direction: column;
     gap: 10px;
+    margin-top: 5px;
   }
 }
 .lose-screen .box .box-footer .restart-btn {
