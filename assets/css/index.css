@@ -310,17 +310,17 @@ header .scores .score.life-score p {
   position: relative;
   width: 85%;
   max-width: 500px;
-  padding: 50px;
+  padding: 30px 20px; /* Было 50px, стало меньше сверху/снизу */
   border: 5px solid #e89de0;
   background: #563b63;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between; /* ⬅️ важно, чтобы .info-part не исчезал */
   border-radius: 20px;
 }
 .lose-screen .box img {
-  margin-bottom: 25px;
-  width: 150px;
+  margin-bottom: 15px; /* Было 25px */
 }
 @media only screen and (max-width: 767px) {
   .lose-screen .box img {
@@ -328,7 +328,7 @@ header .scores .score.life-score p {
   }
 }
 .lose-screen .box .info-part {
-  margin-bottom: 50px;
+  width: 100%;
 }
 .lose-screen .box .info-part h4 {
   margin-bottom: 20px;
@@ -348,10 +348,12 @@ header .scores .score.life-score p {
 }
 .lose-screen .box .box-footer {
   display: flex;
-  flex-direction: row !important; /* ключевой момент */
+  flex-direction: row;
   justify-content: center;
-  align-items: center;
-  gap: 30px;
+  flex-wrap: wrap; /* ⬅️ если не помещаются, пусть переносятся */
+  gap: 20px;
+  width: 100%;
+  margin-top: 20px; /* отступ от .info-part */
 }
 @media only screen and (max-width: 767px) {
   .lose-screen .box .box-footer {
