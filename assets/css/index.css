@@ -310,7 +310,7 @@ header .scores .score.life-score p {
   position: relative;
   width: 85%;
   max-width: 500px;
-  padding: 50px;
+  padding: 20px 30px 30px 30px; /* top, right, bottom, left */
   border: 5px solid #e89de0;
   background: #563b63;
   display: flex;
