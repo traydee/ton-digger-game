@@ -566,6 +566,28 @@ const handleLose = () => {
   if (telegramId) {
     // после записи сессии обновим жизни
     sendGameSession(telegramId, secondsScore)
+      .then(data => {
+        if (data?.prize) {
+          const { title, description, image_url, manager_link } = data.prize;
+
+          document.querySelector('[data-prize-title]').textContent = `🎁 ${title}`;
+          document.querySelector('[data-prize-description]').textContent = description;
+
+          const img = document.querySelector('[data-prize-image]');
+          if (image_url) {
+            img.src = image_url;
+            img.style.display = 'block';
+          } else {
+            img.style.display = 'none';
+          }
+
+          const linkElem = document.querySelector('[data-prize-link]');
+          linkElem.href = manager_link;
+          linkElem.textContent = 'Claim your prize';
+
+          document.querySelector('.prize-block').style.display = 'block';
+        }
+      })
       .finally(() => fetchLivesAndRender());
   } else {
     console.warn("Telegram WebApp не доступен или пользователь не найден");
@@ -646,7 +668,7 @@ function encryptData(data) {
 }
 
 async function sendGameSession(telegramId, duration) {
-  const platform  = getPlatform();
+  const platform = getPlatform();
   const payload = {
     telegram_id: telegramId,
     duration_seconds: Math.floor(duration),
@@ -656,17 +678,27 @@ async function sendGameSession(telegramId, duration) {
 
   const encrypted = encryptData(payload);
 
-  const response = await fetch(`${API_BASE_URL}/api/game_session/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      'x-tg-platform': platform
-    },
-    body: JSON.stringify({ data: encrypted }),
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/game_session/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        'x-tg-platform': platform
+      },
+      body: JSON.stringify({ data: encrypted }),
+    });
 
-  const res = await response.json();
-  console.log(res);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const res = await response.json();
+    console.log("[GameSession Response]:", res);
+    return res;
+  } catch (err) {
+    console.error("Failed to send game session:", err);
+    return null;
+  }
 }
 
 async function fetchLivesAndRender() {
