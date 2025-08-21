@@ -318,21 +318,33 @@ header .scores .score.life-score p {
   align-items: center;
   border-radius: 20px;
 }
+.lose-screen .box {
+  padding: 7px; /* меньше воздуха внутри блока */
+}
+
 .lose-screen .box img {
-  margin-bottom: 10px;
-  width: 150px;
+  display: block;
+  margin: 0 auto 10px auto; /* только снизу небольшой отступ */
+  max-width: 100%;
 }
 @media only screen and (max-width: 767px) {
+  .lose-screen .box {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
   .lose-screen .box img {
-    margin-bottom: 10px;
-    width: 120px;
+    margin-top: 0;
+    margin-bottom: 5px;
+    width: 100px;
+    display: block;
   }
 }
 .lose-screen .box .info-part {
   margin-bottom: 10px;
 }
 .lose-screen .box .info-part h4 {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-size: 24px;
   font-weight: 700;
   text-align: center;
@@ -346,16 +358,6 @@ header .scores .score.life-score p {
   text-align: center;
   color: #ddd4c9;
   text-shadow: 1px 0px 0 #0e0909, 0.9239px 0.3827px 0 #0e0909, 0.7071px 0.7071px 0 #0e0909, 0.3827px 0.9239px 0 #0e0909, 0px 1px 0 #0e0909, -0.3827px 0.9239px 0 #0e0909, -0.7071px 0.7071px 0 #0e0909, -0.9239px 0.3827px 0 #0e0909, -1px 0px 0 #0e0909, -0.9239px -0.3827px 0 #0e0909, -0.7071px -0.7071px 0 #0e0909, -0.3827px -0.9239px 0 #0e0909, 0px -1px 0 #0e0909, 0.3827px -0.9239px 0 #0e0909, 0.7071px -0.7071px 0 #0e0909, 0.9239px -0.3827px 0 #0e0909;
-}
-
-.prize-block img {
-  max-height: 150px;
-  margin: 10px 0;
-}
-
-.prize-block p {
-  margin: 0 !important;
-  padding: 0 !important;
 }
 
 .prize-block img[src=""],
