@@ -751,7 +751,8 @@ document.querySelectorAll(".fetchLives-btn").forEach((btn) => {
 });
 
 async function fetchSubscriptionAndRender() {
-  const init_data = getInitData();
+  // const init_data = getInitData();
+  const init_data = window.Telegram?.WebApp?.initData || "user=%7B%22id%22%3A5744864118%2C%22first_name%22%3A%22%D0%90%D1%80%D1%82%D1%83%D1%80%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22tray_dee%22%2C%22language_code%22%3A%22ru%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FeaO3hPMNeBR3eS_55IWGG65x0v0g5jbMB0UEGDpdoZ5Inupd7SbxkLLZbyIxr98y.svg%22%7D&chat_instance=-7868909803339777740&auth_date=1755778619&signature=qj49Q5qv0irNGv-lfaPNZDjrfiF6KM9bDJc4gmEGu7yG76UyTDmgqza_UyfFTiRiH5GgH12bZvN3IPPqns7uCw&hash=1d32f51765354b07d555b64a97549bca8752c6f9ce0e808bc9e99587c4e9b457";
   const platform  = getPlatform();
 
   try {
