@@ -348,6 +348,8 @@ header .scores .score.life-score p {
 }
 .lose-screen .box .box-footer {
   display: flex;
+  flex-direction: row !important;
+  justify-content: center;
   align-items: center;
   gap: 30px;
 }
