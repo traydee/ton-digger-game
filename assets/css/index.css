@@ -984,3 +984,7 @@ header .scores .score.life-score p {
 .share-btn {
   display: none !important;
 }
+
+[data-lose-coins-score] {
+  display: none !important;
+}
