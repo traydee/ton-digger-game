@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Идут работы по обновлению игры. Мы скоро вернёмся!">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta http-equiv="refresh" content="600"> <!-- автообновление раз в 10 минут -->
+  <title>Технические работы — игра временно недоступна</title>
+  <style>
+    :root{
+      --bg-1:#3a2445; 
+      --bg-2:#563b63; 
+      --card:#442a50cc; 
+      --text:#f3eaf5;   
+      --muted:#e0c9da;  
+      --accent:#e89de0; 
+      --ring:#f2b8e8;   
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: "IBM Plex Sans", sans-serif;
+      background: radial-gradient(50% 50% at 50% 50%, #251817 0%, #0e0909 100%);
+      color: #ddd4c9;
+    }
+    .wrap {
+      position: relative;
+      width: 85%;
+      max-width: 500px;
+      padding: 20px;
+      border: 5px solid #e89de0;
+      background: #563b63;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: 20px;
+      text-align: center;
+    }
+    .logo{
+      display:inline-grid;
+      place-items:center;
+      width:80px;height:80px;
+      margin:4px auto 18px;
+      border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #e89de011 0 40%, transparent 41%), #3a2445;
+      box-shadow: 0 0 0 2px #e89de033, 0 10px 25px #e89de055;
+      position:relative;
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float{0%,100%{transform: translateY(0)}50%{transform: translateY(-6px)}}
+
+    /* простая шестерёнка на CSS */
+    .gear{position:relative;width:38px;height:38px}
+    .gear:before,.gear:after{
+      content:"";position:absolute;inset:0;border-radius:50%;
+      border:5px solid var(--accent);
+      clip-path: polygon(
+        50% 0%, 61% 8%, 75% 5%, 79% 18%, 92% 21%, 89% 35%, 100% 50%, 89% 65%, 92% 79%, 79% 82%,
+        75% 95%, 61% 92%, 50% 100%, 39% 92%, 25% 95%, 21% 82%, 8% 79%, 11% 65%, 0% 50%, 11% 35%,
+        8% 21%, 21% 18%, 25% 5%, 39% 8%
+      );
+      animation: spin 3.5s linear infinite;
+    }
+    .gear:after{inset:8px;border-width:4px;border-color:var(--ring);animation-direction: reverse}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      color: #ddd4c9;
+      text-shadow: 1px 0px 0 #0e0909, 0.9239px 0.3827px 0 #0e0909, 0.7071px 0.7071px 0 #0e0909,
+                   0.3827px 0.9239px 0 #0e0909, 0px 1px 0 #0e0909, -0.3827px 0.9239px 0 #0e0909,
+                   -0.7071px 0.7071px 0 #0e0909, -0.9239px 0.3827px 0 #0e0909,
+                   -1px 0px 0 #0e0909, -0.9239px -0.3827px 0 #0e0909, -0.7071px -0.7071px 0 #0e0909,
+                   -0.3827px -0.9239px 0 #0e0909, 0px -1px 0 #0e0909,
+                   0.3827px -0.9239px 0 #0e0909, 0.7071px -0.7071px 0 #0e0909,
+                   0.9239px -0.3827px 0 #0e0909;
+    }
+    p{margin:8px 0;color:var(--muted);font-size: clamp(14px, 2.4vw, 16px);}
+
+    .progress{height:6px;background:#ffffff14;border-radius:999px;overflow:hidden;margin:18px 0 8px}
+    .progress>span{display:block;height:100%;width:30%;background:linear-gradient(90deg,var(--accent),var(--ring));
+                   animation: load 2.2s ease-in-out infinite}
+    @keyframes load{0%{transform:translateX(-30%)}50%{transform:translateX(120%)}100%{transform:translateX(-30%)}}
+
+    .btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 15px;
+    }
+    .btn span {
+      position: absolute;
+      top: 31%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: "Annyant Roman", sans-serif;
+      font-size: 16px;
+      color: #472d0b;
+      white-space: nowrap;
+    }
+    .btn svg {
+      width: auto;
+      height: 56px;
+    }
+    .btns{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+    .btn:hover{border-color:var(--ring); background:#3a2445; box-shadow:0 0 0 3px #e89de022, 0 0 18px #e89de022 inset;}
+    .btn:focus-visible{outline:none;box-shadow:0 0 0 3px #e89de033, 0 0 0 6px #ffffff20}
+    .btn:active{transform:translateY(1px)}
+    .status{margin-top:8px;font-size:12px;color:var(--muted)}
+
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid #ffffff2a;background:#0b1220b3;color:var(--text);font-size:14px;margin:6px 0 2px}
+    .badge .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+    .timer{font-variant-numeric: tabular-nums;font-weight:700;letter-spacing:.5px}
+    .window{margin:6px 0 16px;color:var(--muted);font-size:14px}
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main" aria-live="polite">
+    <div class="logo" aria-hidden="true"><div class="gear"></div></div>
+    <h1>Идут работы по обновлению игры</h1>
+    <div class="btns">
+    </div>
+  </main>
+  <script>
+    (function(){
+      // Параметры можно передать в URL: ?mwStart=2025-08-25T21:00:00Z&mwEnd=2025-08-25T22:30:00Z
+      const params = new URLSearchParams(location.search);
+      const now = new Date();
+      const startIso = params.get('mwStart');
+      const endIso = params.get('mwEnd');
+      const start = startIso ? new Date(startIso) : now;
+      const end = endIso ? new Date(endIso) : new Date(now.getTime() + 45*60*1000); // по умолчанию 45 минут
+
+      const $s = document.getElementById('mw-start');
+      const $e = document.getElementById('mw-end');
+      const $t = document.getElementById('mw-timer');
+
+      const fmt = (d)=> new Intl.DateTimeFormat(undefined,{
+        day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'
+      }).format(d);
+
+      if($s) $s.textContent = fmt(start);
+      if($e) $e.textContent = fmt(end);
+
+      function pad(n){return String(n).padStart(2,'0');}
+      function tick(){
+        const now = new Date();
+        let diff = end - now;
+        if(diff <= 0){
+          $t.textContent = '00:00:00';
+          // Попробуем перезагрузиться раз в минуту, вдруг сервис уже поднялся
+          setTimeout(()=>location.reload(), 15_000);
+          return;
+        }
+        const h = Math.floor(diff/3_600_000); diff%=3_600_000;
+        const m = Math.floor(diff/60_000);    diff%=60_000;
+        const s = Math.floor(diff/1_000);
+        $t.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
+        requestAnimationFrame(()=>setTimeout(tick, 250));
+      }
+      tick();
+    })();
+  </script>
+</body>
+</html>
