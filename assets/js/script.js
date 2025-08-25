@@ -17,7 +17,7 @@ import { setupCoin, updateCoin, getCoinRects } from "./coin.js";
 import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 
 // Global variables
-const API_BASE_URL = "https://test.webtop.site";
+const API_BASE_URL = "https://webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
@@ -577,7 +577,7 @@ const handleLose = () => {
           const prizeBlock = document.querySelector('.prize-block');
 
           if (titleElem) titleElem.textContent = `🎁 ${title}`;
-          if (descElem) descElem.textContent = description;
+          if (descElem) descElem.innerHTML = description;
 
           if (img) {
             if (image_url) {
@@ -607,7 +607,7 @@ const handleLose = () => {
 
   setTimeout(() => {
     loseCoinsScoreElem.textContent = `Gems Used: ${Math.floor(coinsScore)}`;
-    loseSecondsScoreElem.textContent = `Survived: ${Math.floor(secondsScore)}s`;
+    loseSecondsScoreElem.textContent = `Result: ${Math.floor(secondsScore)}s`;
     loseScreenElem.classList.remove("hide");
   }, 100);
 };

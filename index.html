@@ -127,7 +127,7 @@
         <div class="score second-score">
           <img src="assets/images/time.png" alt="" />
 
-          <p>Survived: <span data-second-score>0</span>s</p>
+          <p>Result: <span data-second-score>0</span>s</p>
         </div>
         <div class="score life-score">
           <img src="assets/images/life.png" alt="" />
@@ -437,18 +437,18 @@
     <!-- Lose screen -->
     <div class="lose-screen hide" data-lose-screen>
       <div class="box">
-        <img src="assets/images/logo.png" alt="" />
+        <!-- <img src="assets/images/logo.png" alt="" /> -->
 
         <div class="info-part">
           <!-- <h4>Game Over!</h4> -->
 
           <p data-lose-coins-score></p>
-          <p data-lose-seconds-score></p>
 
           <div class="prize-block">
+            <img data-prize-image style="max-width: 100%; display: none; margin: 10px auto 0 auto;" />
+            <p data-lose-seconds-score></p>
             <p data-prize-title></p>
             <p data-prize-description></p>
-            <img data-prize-image style="max-width: 100%; display: none; margin: 10px auto 0 auto;" />
           </div>
         </div>
 
