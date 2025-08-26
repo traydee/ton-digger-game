@@ -35,50 +35,57 @@ const qsPlatform = new URLSearchParams(location.search).get('tgWebAppPlatform') 
 const getPlatform = () =>
   (window.Telegram?.WebApp?.platform || qsPlatform || 'unknown').toLowerCase();
 
-(function earlyWebTgBlock() {
-  const qsPlat  = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+(function lockNonMobileTg() {
+  const qsPlat = (new URLSearchParams(location.search).get('tgWebAppPlatform') || '').toLowerCase();
+  const wa = window.Telegram && window.Telegram.WebApp;
+  const plat = (wa?.platform || qsPlat || '').toLowerCase();
+  const ua = (navigator.userAgent || '').toLowerCase();
   const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
-  const wa      = window.Telegram && window.Telegram.WebApp;
-  const plat    = (wa?.platform || qsPlat || '').toLowerCase();
-  const isWeb   = plat === 'weba' || plat === 'webk' || plat === 'tdesktop' || refIsWeb;
 
-  if (!isWeb) return;
+  // Разрешаем ТОЛЬКО мобильные WebView Telegram
+  const isAllowedMobileTg = !!wa && (plat === 'android' || plat === 'ios');
 
-  let sealed = false;
-  const seal = () => {
-    if (sealed) return;
-    sealed = true;
-    try { document.body.style.overflow = 'hidden'; } catch {}
+  // Явные десктопные/веб-признаки
+  const looksLikeDesktopTg =
+    plat === 'tdesktop' || plat === 'macos' || plat === 'universal' ||
+    refIsWeb ||
+    /telegramdesktop|qtwebengine/.test(ua); // фолбэк по UA для десктопа
+
+  const isBlocked = !isAllowedMobileTg || looksLikeDesktopTg;
+
+  const seal = (msg) => {
+    try { document.body && (document.body.style.overflow = 'hidden'); } catch {}
     try {
       document.documentElement.innerHTML =
-        '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui">Игра недоступна в веб-версии Telegram.</div>';
+        '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;text-align:center;padding:24px;font:16px/1.4 system-ui">'
+        + (msg || 'Игра доступна только в мобильном приложении Telegram.')
+        + '</div>';
     } catch {}
   };
 
-  const closeOnce = () => {
+  const allow = () => {
+    try { document.documentElement.style.display = ''; } catch {}
+    try { wa?.ready?.(); } catch {}
+  };
+
+  if (isBlocked) {
+    // Пытаемся культурно закрыть/увести
     try { wa?.ready?.(); } catch {}
     try { wa?.close?.(); } catch {}
-
     setTimeout(() => {
-      if (sealed) return;
       try { wa?.openTelegramLink?.('https://t.me/webtop_racing_bot'); } catch {}
       try { window.location.replace('about:blank'); } catch {}
       try { window.stop?.(); } catch {}
       seal();
-    }, 150);
-  };
+    }, 120);
+  } else {
+    allow();
+  }
 
-  let tries = 0;
-  const iv = setInterval(() => {
-    if (sealed) return clearInterval(iv);
-    if (wa && !window.Telegram?.WebApp) { clearInterval(iv); return seal(); }
-    closeOnce();
-    if (++tries >= 3) clearInterval(iv);
-  }, 200);
-
-  const stop = () => { try { clearInterval(iv); } catch {} seal(); };
+  // На всякий случай: если страница уходит в бэкграунд — запечатаем
+  const stop = () => { seal(); };
   document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); }, { once: true });
-  window.addEventListener('pagehide',   stop, { once: true });
+  window.addEventListener('pagehide', stop, { once: true });
   window.addEventListener('beforeunload', stop, { once: true });
 })();
 
