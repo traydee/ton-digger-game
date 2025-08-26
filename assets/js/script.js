@@ -40,7 +40,7 @@ const getPlatform = () =>
   const refIsWeb = /\/\/web\.telegram\.org\//i.test(document.referrer || '');
   const wa      = window.Telegram && window.Telegram.WebApp;
   const plat    = (wa?.platform || qsPlat || '').toLowerCase();
-  const isWeb   = plat === 'weba' || plat === 'webk' || refIsWeb;
+  const isWeb   = plat === 'weba' || plat === 'webk' || plat === 'tdesktop' || refIsWeb;
 
   if (!isWeb) return;
 
