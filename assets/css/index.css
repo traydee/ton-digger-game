@@ -973,6 +973,10 @@ header .scores .score.life-score p {
   display: none !important;
 }
 
+.trophy-btn {
+  display: none !important;
+}
+
 [data-coin] {
   display: none;
 }
