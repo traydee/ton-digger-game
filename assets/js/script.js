@@ -17,7 +17,7 @@ import { setupCoin, updateCoin, getCoinRects } from "./coin.js";
 import { setupSerum, updateSerum, getSerumRects } from "./serum.js";
 
 // Global variables
-const API_BASE_URL = "https://webtop.site";
+const API_BASE_URL = "https://test.webtop.site";
 const SPEED_SCALE_INCREASE = 0.00001;
 let AUDIO_MUTED = true;
 
@@ -926,15 +926,20 @@ $(window).blur(function () {
   if (gameStarted) return handleLose();
 });
 
-$(".world").click(function () {
-  if (window.innerWidth <= 768) {
-    if (gameStarted) {
-      // Play jump audio
-      if (!AUDIO_MUTED) {
-        jumpAudio.play();
-      }
+// === быстрый тап без 300мс лага ===
+const worldTapTarget = document.querySelector(".world");
 
-      onJump({ code: "Space" });
-    }
+function handleTap() {
+  if (window.innerWidth <= 768 && gameStarted) {
+    if (!AUDIO_MUTED) jumpAudio.play();
+    onJump({ code: "Space" }); // используем существующую логику прыжка из character.js
   }
-});
+}
+
+// снимаем возможные старые обработчики jQuery, если остаются
+try { $(".world").off("click"); } catch {}
+
+// быстрые события
+worldTapTarget.addEventListener("pointerdown", handleTap, { passive: true });
+worldTapTarget.addEventListener("touchstart", handleTap, { passive: true });
+worldTapTarget.addEventListener("mousedown", handleTap);
