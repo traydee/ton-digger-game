@@ -557,46 +557,45 @@ const handleLose = () => {
 
   setCharacterLose();
 
+  // элементы
+  const titleElem  = document.querySelector('[data-prize-title]');
+  const descElem   = document.querySelector('[data-prize-description]');
+  const img        = document.querySelector('[data-prize-image]');
+  const linkBtn    = document.querySelector('button[data-prize-link]');
+  const prizeBlock = document.querySelector('.prize-block');
+
+  // сброс состояния (по умолчанию скрыто)
+  if (linkBtn) linkBtn.style.display = "none";
+  if (img) img.style.display = "none";
+  if (titleElem) titleElem.textContent = "";
+  if (descElem) descElem.innerHTML = "";
+  if (prizeBlock) prizeBlock.style.display = "block"; // показываем всегда, чтобы счет секунд был виден
+
   // Получаем Telegram ID (если WebApp)
+  
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
   const telegramId = telegramUser?.id;
   // const telegramId = 5744864118;
 
-  // Отправляем результаты, если есть telegram_id
   if (telegramId) {
-    // после записи сессии обновим жизни
     sendGameSession(telegramId, secondsScore)
       .then(data => {
         if (data?.prize) {
           const { title, description, image_url, manager_link } = data.prize;
 
-          const titleElem = document.querySelector('[data-prize-title]');
-          const descElem = document.querySelector('[data-prize-description]');
-          const img = document.querySelector('[data-prize-image]');
-          const linkBtn = document.querySelector('button[data-prize-link]');
-          const prizeBlock = document.querySelector('.prize-block');
-
           if (titleElem) titleElem.textContent = `🎁 ${title}`;
           if (descElem) descElem.innerHTML = description;
 
-          if (img) {
-            if (image_url) {
-              img.src = image_url;
-              img.style.display = 'block';
-              img.onerror = () => img.style.display = 'none';
-            } else {
-              img.style.display = 'none';
-            }
+          if (img && image_url) {
+            img.src = image_url;
+            img.style.display = 'block';
+            img.onerror = () => (img.style.display = 'none');
           }
 
           if (linkBtn && manager_link) {
             linkBtn.style.display = 'inline-block';
-            linkBtn.onclick = () => {
-              window.open(manager_link, '_blank');
-            };
+            linkBtn.onclick = () => window.open(manager_link, '_blank');
           }
-
-          if (prizeBlock) prizeBlock.style.display = 'block';
         }
       })
       .finally(() => fetchLivesAndRender());
@@ -606,8 +605,21 @@ const handleLose = () => {
   }
 
   setTimeout(() => {
-    loseCoinsScoreElem.textContent = `Gems Used: ${Math.floor(coinsScore)}`;
+    loseCoinsScoreElem.textContent   = `Gems Used: ${Math.floor(coinsScore)}`;
     loseSecondsScoreElem.textContent = `Result: ${Math.floor(secondsScore)}s`;
+
+    // проверяем — есть ли приз
+    const hasPrize = !!document.querySelector('button[data-prize-link]')?.style.display &&
+                    document.querySelector('button[data-prize-link]').style.display !== "none";
+
+    if (!hasPrize) {
+      const titleElem = document.querySelector('[data-prize-title]');
+      const descElem  = document.querySelector('[data-prize-description]');
+
+    if (titleElem) titleElem.textContent = "Приза нет 😕";
+    if (descElem)  descElem.innerHTML = "Вы проехали слишком мало.<br>В следующий раз получится 😘";
+    }
+
     loseScreenElem.classList.remove("hide");
   }, 100);
 };
